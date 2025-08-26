@@ -1,0 +1,71 @@
+/* Header Styles - 깔끔한 버전 */
+:root {
+    --header-height: 80px;
+
+    /* 깔끔하고 현대적인 색감 */
+    --clean-50: #f0f4f8;
+    --clean-100: #e1e8ed;
+    --clean-200: #c7d2dd;
+    --clean-300: #9fb3c8;
+    --gray-600: #545d6a;
+    --gray-700: #3d4551;
+    --gray-800: #2a303c;
+
+    /* Shadows */
+    --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.header {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--header-height);
+    background: linear-gradient(135deg, #ffffff 0%, var(--clean-50) 100%);
+    border-bottom: 1px solid var(--clean-300);
+    box-shadow: var(--shadow-soft);
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+.contents {
+    display: flex;
+    width: 96%;
+    max-width: 1200px;
+    height: 100%;
+    margin: 0;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 20px;
+}
+
+.employment-sign-up-image {
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.employment-sign-up-image:hover {
+    transform: translateY(-2px);
+}
+
+.hospital-image {
+    width: 100px;
+    height: 55px;
+    object-fit: contain;
+    filter: brightness(1.02) contrast(1.01);
+    transition: filter 0.3s ease;
+}
+
+.hospital-image:hover {
+    filter: brightness(1.05) contrast(1.03);
+}
+
+.image-text {
+    font-size: 24px;
+    color: var(--gray-800);
+    font-weight: 700;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}

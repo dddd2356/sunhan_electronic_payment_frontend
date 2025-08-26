@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src", //기본경로를 src폴더부터 시작하게 하는거
     "target": "es5",
     "lib": [
       "dom",

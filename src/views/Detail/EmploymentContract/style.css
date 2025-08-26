@@ -1,0 +1,469 @@
+/* EmploymentContract.css */
+
+.contract-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    min-height: 100vh;
+}
+
+.contract-header {
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 310px;
+}
+
+.contract-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 8px;
+    color: #333;
+}
+
+/* 당사자 정보 테이블 */
+.parties-table {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 1px solid;
+}
+
+.parties-table table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #333;
+}
+
+.parties-table th,
+.parties-table td {
+    border: 1px solid #333;
+    padding: 12px 8px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.parties-table th {
+    background-color: #f8f8f8;
+    font-weight: normal;
+}
+
+.parties-table input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.parties-table input:focus {
+    background-color: #f0f8ff;
+}
+
+.parties-table .wide-input {
+    text-align: left;
+}
+
+/* 계약 내용 */
+.contract-content {
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.clause {
+}
+
+.clause h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+    color: #333;
+}
+
+.clause p {
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: justify;
+    color: #333;
+}
+
+/* 값이 들어오면(placeholder가 사라지면) 언더라인 제거 */
+.clause input:not(:placeholder-shown) {
+    border-bottom: none;
+}
+
+/* 입력 그룹 */
+.input-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.input-group span {
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.input-group input {
+    border: none;
+    border-bottom: 1px solid #333;
+    outline: none;
+    padding: 4px 8px;
+    font-size: 14px;
+    background: transparent;
+    min-width: 100px;
+}
+
+/* “개수” 입력칸 전용 클래스 */
+.input-group input.ch-input {
+    /* 1문자만 보이도록 최소폭을 1ch 로 잡고 */
+    min-width: 1ch;
+    /* 값에 따라 폭이 늘어나게 width:auto */
+    width: auto;
+    /* transition 주면 부드럽게 늘어납니다 */
+    transition: width 0.2s ease-in-out;
+}
+
+/* 값이 들어오면(placeholder가 사라지면) 언더라인 제거 */
+.input-group input:not(:placeholder-shown) {
+    border-bottom: none;
+}
+
+.input-group .wide-input {
+    flex: 1;            /* 남은 공간 전부 차지 */
+    min-width: 200px;   /* 최소 너비를 지정할 수도 있고 */
+    width: 100%;        /* 강제 100% 너비 */
+    margin-bottom: 10px;
+}
+
+.input-group input:focus {
+    border-bottom: 2px solid #007bff;
+    background-color: #f0f8ff;
+}
+
+.input-group input[type="date"] {
+    min-width: 140px;
+}
+
+.date-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    gap: 10px;
+}
+
+.date-section span {
+    font-size: 16px;
+}
+
+.date-input {
+    border: none;
+    border-bottom: 1px solid #333;
+    outline: none;
+    padding: 8px;
+    font-size: 16px;
+    background: transparent;
+}
+
+.signature-boxes {
+    display: flex;
+    justify-content: space-around;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.signature-box {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #333;
+    background-color: #fafafa;
+}
+
+.signature-box h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .contract-container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .contract-header h1 {
+        font-size: 24px;
+        letter-spacing: 4px;
+    }
+
+    .parties-table th,
+    .parties-table td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+
+    .contract-content {
+        font-size: 13px;
+    }
+
+    .input-group .wide-input {
+        width: 100%;
+    }
+
+    .signature-boxes {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* 페이지네이션 컨트롤 */
+.pagination-controls {
+    display: flex;
+    justify-content: center; /* 버튼과 페이지 번호를 가운데 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-top: 30px; /* 계약 내용과 간격 */
+    margin-bottom: 30px; /* 하단 간격 */
+    gap: 20px; /* 요소들 사이의 간격 */
+}
+
+.pagination-controls button {
+    background-color: #007bff; /* 파란색 배경 */
+    color: white; /* 흰색 글씨 */
+    border: none;
+    border-radius: 5px; /* 둥근 모서리 */
+    padding: 10px 20px; /* 적당한 패딩 */
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease; /* 부드러운 호버 효과 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #0056b3; /* 호버 시 진한 파란색 */
+    transform: translateY(-1px); /* 살짝 떠오르는 효과 */
+}
+
+.pagination-controls button:active:not(:disabled) {
+    background-color: #004085; /* 클릭 시 더 진한 파란색 */
+    transform: translateY(0); /* 클릭 시 원위치 */
+}
+
+.pagination-controls button:disabled {
+    background-color: #cccccc; /* 비활성화 시 회색 배경 */
+    color: #666666; /* 비활성화 시 어두운 글씨 */
+    cursor: not-allowed; /* 커서 변경 */
+    box-shadow: none; /* 그림자 제거 */
+}
+
+.pagination-controls span {
+    font-size: 18px; /* 페이지 번호 크기 강조 */
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.actual-signature-image {
+    max-width: 100px; /* 또는 원하는 너비 */
+    max-height: 50px; /* 또는 원하는 높이 */
+    vertical-align: middle; /* 텍스트와 이미지 정렬 */
+}
+
+@media print {
+    .contract-container {
+        box-shadow: none;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .parties-table input,
+    .input-group input,
+    .date-input {
+        border-bottom: 1px solid #333 !important;
+        background: transparent !important;
+    }
+}
+
+/* 접근성 및 사용자 경험 개선 */
+input:focus {
+    transition: all 0.3s ease;
+}
+
+.parties-table input:hover,
+.input-group input:hover {
+    background-color: #f5f5f5;
+}
+
+/* 테이블 스타일 개선 */
+.parties-table table tr:first-child th:first-child {
+    width: 80px;
+}
+
+.parties-table table tr:first-child th:nth-child(2) {
+    width: 120px;
+}
+
+.parties-table table tr:first-child th:nth-child(3) {
+    width: 150px;
+}
+
+
+.consent-container {
+    width: 100%;
+    font-family: 'Malgun Gothic', sans-serif;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+}
+
+.consent-row {
+    background-color: #e5e5e5;
+    border: 2px solid #000000;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    box-sizing: border-box;
+    margin: 0;
+    position: relative;
+}
+
+.checkbox-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    border: none;
+    outline: none;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-left: 50px;
+    padding-right: 50px;
+    cursor: pointer;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.checkbox-input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin: 0;
+    vertical-align: middle;
+    border: none;
+    outline: none;
+}
+
+.checkbox-text {
+    font-size: 14px;
+    color: #333;
+    user-select: none;
+    line-height: 16px;
+    white-space: nowrap;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.signature-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    width: 300px;
+    border: none;
+    outline: none;
+}
+
+.signature-label {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    line-height: 16px;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.signature-input {
+    width: 120px;
+    height: 20px;
+    border: none;
+    border-bottom: 1px solid #333;
+    background-color: transparent;
+    padding: 0 5px;
+    font-size: 14px;
+    outline: none;
+    text-align: center;
+    line-height: 20px;
+    margin: 0;
+}
+
+.signature-suffix {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    line-height: 16px;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.parties-table td.section-body {
+    text-align: left;
+}
+
+.signature-section .signature-input {
+    border-bottom: 1px solid #333;
+}
+
+.viewer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 화면 미리보기용 A4 박스 */
+.page {
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    background: white;
+    overflow: hidden;
+    padding: 4mm;     /* 원하는 여백 */
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* 커스텀 스크롤바 스타일 추가 */
+.page::-webkit-scrollbar {
+    width: 6px;
+}
+
+.page::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.page::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.page::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

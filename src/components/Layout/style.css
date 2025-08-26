@@ -1,0 +1,51 @@
+/* Layout Styles - 깔끔한 버전 */
+:root {
+    --header-height: 80px;
+    --sidebar-width: 270px;
+    --clean-bg: #f0f4f8; /* 깔끔한 배경색 */
+}
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--clean-bg);
+}
+
+.content-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    margin-top: var(--header-height);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    padding: 24px;
+    box-sizing: border-box;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--clean-bg);
+}
+
+.main-content.full-width {
+    margin-left: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .content-container {
+        margin-top: var(--header-height);
+    }
+
+    .main-content,
+    .main-content.full-width {
+        margin-left: 0;
+        padding: 16px;
+    }
+}

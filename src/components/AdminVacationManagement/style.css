@@ -1,0 +1,553 @@
+
+/* 메인 컨테이너 */
+.vacation-management-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* 헤더 섹션 */
+.vacation-management-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.vacation-management-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.vacation-management-title::before {
+    content: "🏖️";
+    font-size: 2rem;
+}
+
+.vacation-management-subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* 로딩 및 에러 상태 */
+.vacation-management-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.vacation-management-loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.vacation-management-error {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 2px solid #fecaca;
+}
+
+.vacation-management-error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.vacation-management-error-message {
+    color: #dc2626;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.vacation-management-retry-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.vacation-management-retry-btn:hover {
+    background: #2563eb;
+}
+
+/* 메인 그리드 레이아웃 */
+.vacation-management-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    height: calc(100vh - 200px);
+}
+
+@media (max-width: 1024px) {
+    .vacation-management-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        height: auto;
+    }
+}
+
+/* 사용자 목록 섹션 */
+.vacation-users-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.vacation-users-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vacation-users-header::before {
+    content: "👥";
+    font-size: 1.5rem;
+}
+
+/* 검색 바 */
+.vacation-search-container {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.vacation-search-input {
+    width: 93%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.vacation-search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 사용자 리스트 */
+.vacation-users-list {
+    flex: 1;
+    overflow-y: auto;
+
+}
+
+.vacation-user-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.vacation-user-item:hover {
+    background: #f8fafc;
+}
+
+.vacation-user-item.selected {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+}
+
+.vacation-user-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.vacation-user-info {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.vacation-user-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+}
+
+.vacation-user-stat {
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.vacation-user-stat.total {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.vacation-user-stat.used {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.vacation-user-stat.remaining {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* 설정 섹션 */
+.vacation-settings-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.vacation-settings-header {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    color: white;
+    padding: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vacation-settings-header::before {
+    content: "⚙️";
+    font-size: 1.5rem;
+}
+
+.vacation-settings-content {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+/* 빈 상태 */
+.vacation-settings-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #64748b;
+    text-align: center;
+}
+
+.vacation-settings-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.vacation-settings-empty-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.vacation-settings-empty-subtext {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* 선택된 사용자 정보 */
+.vacation-selected-user {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid #e2e8f0;
+}
+
+.vacation-selected-user-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.vacation-selected-user-info {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.vacation-selected-user-current {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.vacation-current-stat {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+}
+
+.vacation-current-stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.vacation-current-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.vacation-current-stat.total .vacation-current-stat-value {
+    color: #1e40af;
+}
+
+.vacation-current-stat.used .vacation-current-stat-value {
+    color: #92400e;
+}
+
+.vacation-current-stat.remaining .vacation-current-stat-value {
+    color: #065f46;
+}
+
+/* 폼 요소들 */
+.vacation-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.vacation-form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.vacation-form-input {
+    width: 94%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.vacation-form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 버튼들 */
+.vacation-btn-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+.vacation-btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.vacation-btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.vacation-btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.vacation-btn-primary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.vacation-btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.vacation-btn-secondary:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+/* 업데이트 중 상태 */
+.vacation-updating {
+    position: relative;
+    overflow: hidden;
+}
+
+.vacation-updating::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 성공 메시지 */
+.vacation-success-message {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #a7f3d0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vacation-success-message::before {
+    content: "✅";
+    font-size: 1.2rem;
+}
+
+/* 진행률 표시 */
+.vacation-usage-progress {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.vacation-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.vacation-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.vacation-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.vacation-progress-fill.high-usage {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.vacation-progress-fill.full-usage {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .vacation-management-container {
+        padding: 1rem;
+    }
+
+    .vacation-management-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .vacation-management-header {
+        padding: 1.5rem;
+    }
+
+    .vacation-management-title {
+        font-size: 1.5rem;
+    }
+
+    .vacation-btn-group {
+        flex-direction: column;
+    }
+
+    .vacation-selected-user-current {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 스크롤바 스타일링 */
+.vacation-users-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vacation-users-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.vacation-users-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.vacation-users-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

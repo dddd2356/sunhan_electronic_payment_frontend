@@ -1,25 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import EmploymentContract from "./views/Detail/EmploymentContract";
+import {Route, Routes} from "react-router-dom";
+import SignIn from "./views/Authentication/SignIn";
+import MainPage from "./views/Detail/MainPage";
+import EmploymentContractBoard from "./components/EmploymentContractBoard";
+import AdminDashboard from "./components/AdminDashBoard";
+import LeaveApplicationBoard from "./components/LeaveApplicationBoard";
+import LeaveApplication from "./views/Detail/LeaveApplication";
+import MyPage from "./views/Detail/MyPage";
+import AdminVacationManagement from "./components/AdminVacationManagement";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Routes>
+        <Route path="/auth">
+          <Route path="sign-in" element={<SignIn/>} />
+        </Route>
+        <Route path="/detail">
+            <Route path="main-page" element={<MainPage/>} />
+            <Route path="my-page" element={<MyPage/>}/>
+            <Route path="employment-contract" element={<EmploymentContractBoard/>} />
+            <Route path="employment-contract/view/:id" element={<EmploymentContract/>} />
+            <Route path="employment-contract/edit/:id" element={<EmploymentContract/>} />
+
+            {/* Leave Application */}
+            <Route path="leave-application" element={<LeaveApplicationBoard />} />          {/* board */}
+            <Route path="leave-application/view/:id" element={<LeaveApplication />} />      {/* view */}
+            <Route path="leave-application/edit/:id" element={<LeaveApplication />} />      {/* edit */}
+        </Route>
+          {/* ===== 관리자 페이지 라우트 추가 ===== */}
+          <Route path="/admin">
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="vacation" element={<AdminVacationManagement/>}/>
+          </Route>
+    </Routes>
   );
 }
 

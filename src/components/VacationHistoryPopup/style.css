@@ -1,0 +1,182 @@
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f1f5f9;
+}
+
+.popup-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.popup-close-btn {
+    background: none;
+    border: none;
+    margin-bottom:16px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.popup-close-btn:hover {
+    color: #334155;
+}
+
+.popup-content {
+    padding: 1.82rem;
+    flex: 1;
+    overflow-y: auto; /* 추가됨 */
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.history-item {
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.history-date-range {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.history-days {
+    font-weight: 400;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.history-reason {
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+.history-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+.status-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.history-empty {
+    text-align: center;
+    color: #94a3b8;
+    padding: 2rem;
+}
+
+/* 페이지네이션 스타일 추가 */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 1rem;
+}
+
+.pagination-controls button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.pagination-controls button:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.pagination-controls button:not(:disabled):hover {
+    background: #2563eb;
+}
+
+.pagination-controls span {
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* 커스텀 스크롤바 스타일 */
+.popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

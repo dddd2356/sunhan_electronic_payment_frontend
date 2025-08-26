@@ -1,0 +1,555 @@
+/* EmploymentContractBoard.css */
+
+.fullscreen-container {
+    display: flex;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    height: 100vh; /* 화면 전체 높이 차지 */
+    padding-left: 0 !important;
+    padding-right: 0 !important; /* 우측 여백 */
+    box-sizing: border-box; /* padding을 width에 포함 */
+}
+
+.contract-board {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Malgun Gothic', sans-serif;
+}
+
+.board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.board-header h1 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.create-button{
+    background-color: #3b82f6; /* 깔끔한 블루 톤 */
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.create-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+.contract-list {
+    min-height: 400px;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: #6c757d;
+}
+
+.error {
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* 메일 스타일 리스트 레이아웃 */
+.contract-list-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.contract-list-header {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 100px 120px 120px;
+    gap: 16px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.contract-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 100px 120px 120px;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.contract-item:hover {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding-left: 16px;
+}
+
+.contract-item:last-child {
+    border-bottom: none;
+}
+
+.contract-item-id {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.contract-item-employee {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.contract-item-creator {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.contract-item-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+}
+
+.status-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-sent {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.status-return {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.contract-item-date {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.contract-item-updated {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* 기존 카드 스타일 (필요시 제거) */
+.contract-grid {
+    display: none; /* 카드형 레이아웃 숨김 */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.contract-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.contract-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.contract-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.contract-id {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.contract-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.contract-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-row .label {
+    font-weight: 600;
+    color: #6c757d;
+    min-width: 60px;
+    font-size: 13px;
+}
+
+.info-row .value {
+    color: #333;
+    font-size: 14px;
+    flex: 1;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.search-section {
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 95%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
+}
+
+.user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.user-item {
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-item:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+}
+
+.user-item.selected {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.user-item.selected .user-details {
+    opacity: 0.9;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.cancel-button, .confirm-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-button {
+    background: #6c757d;
+    color: white;
+}
+
+.cancel-button:hover {
+    background: #5a6268;
+}
+
+.confirm-button {
+    background: #667eea;
+    color: white;
+}
+
+.confirm-button:hover {
+    background: #5a6fd8;
+}
+
+.confirm-button:disabled {
+    background: #ced4da;
+    cursor: not-allowed;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    gap: 8px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-size: 14px;
+}
+
+.pagination button:hover {
+    background: #e9ecef;
+}
+
+.pagination button.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contract-board {
+        padding: 15px;
+    }
+
+    .board-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .board-header h1 {
+        font-size: 20px;
+    }
+
+    .create-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .contract-list-header {
+        display: none; /* 모바일에서는 헤더 숨김 */
+    }
+
+    .contract-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 16px;
+    }
+
+    .contract-item-id {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .contract-item-employee {
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .contract-item-creator,
+    .contract-item-date,
+    .contract-item-updated {
+        font-size: 13px;
+    }
+
+    .contract-item-status {
+        justify-self: start;
+        margin-top: 8px;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .cancel-button, .confirm-button {
+        width: 100%;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.contract-item,
+.contract-list-header {
+    text-align: center;
+}
+
+.contract-item > div,
+.contract-list-header > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
