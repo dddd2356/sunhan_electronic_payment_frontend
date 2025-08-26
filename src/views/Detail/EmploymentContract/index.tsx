@@ -10,7 +10,7 @@ import {
     fetchContract, fetchCurrentUser, fetchUserSignature, downloadContract, deleteContract
 } from "../../../apis/contract";
 import RejectModal from "../../../components/RejectModal";
-
+import CeoDirectorSignImage from './assets/images/선한병원직인.png';
 interface PageData {
     id: number;
     title: string;
@@ -1557,10 +1557,10 @@ const EmploymentContract = () => {
                                 <span className="signature-suffix-container">
                                 {formData.ceoSignatureUrl ? (
                                     <img
-                                        src={formData.ceoSignatureUrl}
+                                        src={CeoDirectorSignImage}
                                         alt="대표원장 서명"
                                         className="signature-image"
-                                        style={{width: '100px', height: '50px'}}
+                                        style={{width: '70px', height: '70px', marginLeft:'15px'}}
                                     />
                                 ) : (
                                     <span className="signature-text">(서명/인)</span>

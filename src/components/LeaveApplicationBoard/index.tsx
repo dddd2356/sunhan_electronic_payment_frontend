@@ -77,7 +77,7 @@ const LeaveApplicationBoard: React.FC = () => {
     const itemsPerPage = 10;
 
     const getStatusText = (s: string) => {
-        // [수정] 백엔드의 모든 상태(Enum) 값을 처리하도록 변경
+        // 백엔드의 모든 상태(Enum) 값을 처리하도록 변경
         switch (s) {
             case 'DRAFT': return '작성중';
             case 'PENDING_SUBSTITUTE': return '대직자 승인대기';
@@ -107,7 +107,7 @@ const LeaveApplicationBoard: React.FC = () => {
             case 'PENDING_DEPT_HEAD':
             case 'PENDING_HR_STAFF':
             case 'PENDING_CENTER_DIRECTOR':
-            case 'PENDING_FINAL_HR_APPROVAL':
+            case 'PENDING_HR_FINAL':
             case 'PENDING_ADMIN_DIRECTOR':
             case 'PENDING_CEO_DIRECTOR':
                 return 'status-sent';
