@@ -50,6 +50,7 @@ interface User {
     signatureImageUrl?: string;
     deptCode?: string;
     jobType?: string;
+    permissions?: string[];
 }
 
 interface LeaveApplicationData {
@@ -563,9 +564,9 @@ const LeaveApplication = () => {
         let canApproveCurrent = false;
         // ✨ 인사팀 직원의 jobLevel을 확인하는 Helper 함수
         const isHRStaff = (currentUser?: User) => {
-            return currentUser?.deptCode === "AD" &&
+            return !!currentUser?.permissions?.includes("HR_LEAVE_APPLICATION") &&
                 (["0", "1"].includes(currentUser.jobLevel)) &&
-                (currentUser.role === "ADMIN" || currentUser.role === "HR"); // role 조건 완화
+                (currentUser.role === "ADMIN"); // role 조건 완화
         };
         switch (currentStep) {
             case "SUBSTITUTE_APPROVAL": // 대직자 승인
@@ -607,9 +608,10 @@ const LeaveApplication = () => {
         const jobLevelNum = parseInt(user.jobLevel);
 
         // 인사팀인지 확인하는 함수
-        const isHRStaff = user?.deptCode === "AD" &&
+        const isHRStaff = !!(
+            user.permissions?.includes("HR_LEAVE_APPLICATION") &&
             (["0", "1"].includes(user.jobLevel)) &&
-            (user.role === "ADMIN" || user.role === "HR");
+            (user.role === "ADMIN"));
 
         // 최종 인사팀 승인 단계에서는 인사팀만 전결 가능
         if (currentStep === "HR_FINAL_APPROVAL") {
@@ -847,7 +849,11 @@ const LeaveApplication = () => {
                     break;
                 case 'hrStaff':
                     // 인사팀 직원 서명 권한 확인
-                    isCurrentUserSigner = (currentUser.jobLevel === "0" && currentUser.deptCode === "AD" && currentUser.role === "ADMIN");
+                    isCurrentUserSigner = !!(
+                        currentUser.permissions?.includes("HR_LEAVE_APPLICATION") &&
+                        ["0", "1"].includes(currentUser.jobLevel) &&
+                        (currentUser.role === "ADMIN" || currentUser.role === "HR")
+                    );
                     break;
                 case 'centerDirector':
                     isCurrentUserSigner = (currentUser.jobLevel === "2");
@@ -938,10 +944,12 @@ const LeaveApplication = () => {
                 canSign = (currentUser.jobLevel === "1" && currentUser.deptCode === applicantInfo.department && currentStep === 'DEPARTMENT_HEAD_APPROVAL');
                 break;
             case 'hrStaff':
-                canSign = (currentUser.jobLevel === "0" &&
-                    currentUser.deptCode === "AD" &&
-                    currentUser.role === "ADMIN" &&
-                    currentStep === 'HR_STAFF_APPROVAL');
+                canSign = !!(
+                    currentUser.permissions?.includes("HR_LEAVE_APPLICATION") &&
+                    ["0", "1"].includes(currentUser.jobLevel) &&
+                    (currentUser.role === "ADMIN" || currentUser.role === "HR") &&
+                    currentStep === 'HR_STAFF_APPROVAL'
+                );
                 break;
             case 'centerDirector':
                 canSign = (currentUser.jobLevel === "2" && currentStep === 'CENTER_DIRECTOR_APPROVAL');
@@ -1045,7 +1053,12 @@ const LeaveApplication = () => {
             case 'departmentHead':
                 return (currentUser.jobLevel === "1" && currentUser.deptCode === applicantInfo.department && currentStep === 'DEPARTMENT_HEAD_APPROVAL');
             case 'hrStaff':
-                return ((currentUser.jobLevel === "0" || currentUser.jobLevel === "1")&& currentUser.deptCode === "AD" && currentUser.role === "ADMIN" && currentStep === 'HR_STAFF_APPROVAL'|| currentStep === 'HR_FINAL_APPROVAL');
+                return !!(
+                    currentUser.permissions?.includes("HR_LEAVE_APPLICATION") &&
+                    ["0", "1"].includes(currentUser.jobLevel) &&
+                    (currentUser.role === "ADMIN" || currentUser.role === "HR") &&
+                    (currentStep === 'HR_STAFF_APPROVAL' || currentStep === 'HR_FINAL_APPROVAL')
+                );
             case 'centerDirector':
                 return (currentUser.jobLevel === "2" && currentStep === 'CENTER_DIRECTOR_APPROVAL');
             case 'adminDirector':
@@ -1107,6 +1120,7 @@ const LeaveApplication = () => {
                     signatureImageUrl: userData.signatureImageUrl ? String(userData.signatureImageUrl) : undefined,
                     deptCode: userData.deptCode ? String(userData.deptCode) : undefined,
                     jobType: userData.jobType ? String(userData.jobType) : undefined,
+                    permissions: userData.permissions || [],
                 };
                 setCurrentUser(fetchedUser);
 
@@ -2191,9 +2205,9 @@ const LeaveApplication = () => {
                         {['PENDING_DEPT_HEAD', 'PENDING_HR_STAFF', 'PENDING_CENTER_DIRECTOR', 'PENDING_HR_FINAL', 'PENDING_ADMIN_DIRECTOR', 'PENDING_CEO_DIRECTOR']
                             .includes(applicationStatus) && (() => {
                             // 인사팀 확인 함수
-                            const isHRStaff = currentUser?.deptCode === "AD" &&
-                                (["0", "1"].includes(currentUser?.jobLevel || "")) &&
-                                (currentUser?.role === "ADMIN" || currentUser?.role === "HR");
+                            const isHRStaff = currentUser?.permissions?.includes("HR_LEAVE_APPLICATION") &&
+                                ["0", "1"].includes(currentUser?.jobLevel || "") &&
+                                (currentUser?.role === "ADMIN");
 
                             // 현재 단계별 권한 확인
                             switch (leaveApplication?.currentApprovalStep) {

@@ -23,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     // ===== 관리자 여부를 저장할 상태 추가 =====
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [jobLevel, setJobLevel] = useState<number>(0);
+    const [permissions, setPermissions] = useState<string[]>([]);
     const fetchProfileData = (user_id: string) => {
         axios
             .get(`http://localhost:8080/api/v1/user/${user_id}`, {
@@ -60,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 const userName = userData.userName; // userName 사용
                 const dept = userData.dept; // 부서 정보 추가
                 const userJobLevel = userData.jobLevel;
-
+                const userPermissions = userData.permissions;
                 if (userName) {
                     setProfileName(userName);
                 }
@@ -79,6 +80,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     setIsAdmin(false);
                 }
 
+                if (userPermissions && Array.isArray(userPermissions)) {
+                    setPermissions(userPermissions); // permissions 상태 저장
+                }
                 if (user_id) fetchProfileData(user_id);
             })
             .catch((error) => {
@@ -88,9 +92,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
     useEffect(() => {
         if (cookies.accessToken) {
-            fetchProfile();
+            checkUserStatus();
         }
-    }, [cookies.accessToken, fetchProfile]);
+    }, [cookies.accessToken]);
 
     useEffect(() => {
         console.log("🔍 Profile Name Change Detected:", {
@@ -120,6 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             navigate("/auth/sign-in");
         }
     };
+    const canViewVacationAdmin = isAdmin && (((jobLevel == 0 || jobLevel == 1)&& permissions.includes('HR_LEAVE_APPLICATION')) || jobLevel >= 2);
 
     const handleMypage = () => navigate("/detail/my-page");
     return (
@@ -152,11 +157,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         권한 관리자 페이지
                     </li>
                 )}
-                { isAdmin && jobLevel >= 0 && (
-                <li onClick={() => navigate('/admin/vacation')}
-                    className="menu-title cursor-pointer font-bold text-purple-600">
-                    휴가원 관리자 페이지
-                </li>
+                {/* 휴가원 관리자 페이지는 새로운 조건에 따라 렌더링 */}
+                {canViewVacationAdmin && (
+                    <li onClick={() => navigate('/admin/vacation')}
+                        className="menu-title cursor-pointer font-bold text-purple-600">
+                        휴가원 관리자 페이지
+                    </li>
                 )}
             </ul>
         </div>

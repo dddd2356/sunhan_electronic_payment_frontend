@@ -33,6 +33,7 @@ interface User {
     phone: string;
     address: string;
     role: string;
+    permissions?: string[];
 }
 
 interface CreateContractModalProps {
@@ -131,7 +132,7 @@ const EmploymentContractBoard: React.FC = () => {
     const isAdminByLevel = (user: any) => {
         if (!user) return false;
         const level = Number(user.jobLevel);
-        return level >= 2 || ((level === 0 || level ===1) && user.deptCode === 'AD');
+        return level >= 2 || ((level === 0 || level ===1) && user.permissions?.includes('HR_CONTRACT'));
     };
     // 현재 사용자 정보 가져오기
     useEffect(() => {
@@ -156,7 +157,7 @@ const EmploymentContractBoard: React.FC = () => {
     useEffect(() => {
         if (currentUser && currentUser.role === 'ADMIN' && (
             currentUser.jobLevel >= '2' ||
-            (currentUser.deptCode === 'AD' && (currentUser.jobLevel === '0' || currentUser.jobLevel === '1'))
+            (currentUser.permissions?.includes('HR_CONTRACT') && (currentUser.jobLevel === '0' || currentUser.jobLevel === '1'))
         )) {
             loadUsers();
         }
@@ -221,7 +222,7 @@ const EmploymentContractBoard: React.FC = () => {
                     return isCreator || isEmployee;
                 } else if (c.status === 'COMPLETED') {
                     // 완료: 모든 관리자와 해당 직원
-                    return isAdminByLevel(currentUser) || isEmployee;
+                    return isAdminByLevel(currentUser) || isEmployee || isCreator;
                 }
                 return false;
             });
@@ -283,7 +284,7 @@ const EmploymentContractBoard: React.FC = () => {
             currentUser.role === 'ADMIN' &&
             (
                 Number(currentUser.jobLevel) >= 2 ||
-                (currentUser.deptCode === 'AD' && (Number(currentUser.jobLevel) === 0 || Number(currentUser.jobLevel) === 1))
+                (currentUser.permissions?.includes('HR_CONTRACT') && (Number(currentUser.jobLevel) === 0 || Number(currentUser.jobLevel) === 1))
             )
         ) {
             // 초안 상태이고 관리자인 경우 편집 페이지로
@@ -413,10 +414,12 @@ const EmploymentContractBoard: React.FC = () => {
                 <div className="board-header">
                     <h1>근로계약서 관리</h1>
                     {currentUser && (
-                        (currentUser.role === 'ADMIN' && currentUser.jobLevel >= '2') ||
-                        currentUser.role === 'ADMIN' &&
-                        currentUser.deptCode === 'AD' &&
-                        (currentUser.jobLevel === '0' || currentUser.jobLevel === '1')
+                        ((currentUser.role === 'ADMIN' && currentUser.jobLevel >= '2')) ||
+                        (
+                            (currentUser.role === 'ADMIN') &&
+                            (currentUser.permissions?.includes('HR_CONTRACT')) &&
+                            ((currentUser.jobLevel === '0') || (currentUser.jobLevel === '1'))
+                        )
                     ) && (
                         <button
                             className="create-button"

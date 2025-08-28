@@ -32,6 +32,7 @@ interface User {
     role: string;
     jobLevel: string;
     deptCode: string;
+    permissions?: string[];
 }
 
 interface PaginationData {
@@ -50,6 +51,7 @@ const LeaveApplicationBoard: React.FC = () => {
     const [tab, setTab] = useState<'my' | 'pending' | 'completed'>('my');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchType, setSearchType] = useState<'all'|'applicant'|'substitute'|'status'>('all');
+    const [hasHrLeavePermission, setHasHrLeavePermission] = useState(false);
 // 탭에 따른 플레이스홀더 텍스트 함수
     const getSearchPlaceholder = () => {
         switch (tab) {
@@ -438,7 +440,7 @@ const LeaveApplicationBoard: React.FC = () => {
 
     const canViewCompleted = Boolean(currentUser && (
         // 인사담당자: ADMIN이면서 jobLevel 0이고 deptCode가 'AD'
-        (currentUser.role === 'ADMIN' && currentUser.deptCode === 'AD' && (currentUser.jobLevel === '0' || currentUser.jobLevel === '1')) ||
+        (currentUser.role === 'ADMIN' && currentUser.permissions?.includes('HR_LEAVE_APPLICATION') && (currentUser.jobLevel === '0' || currentUser.jobLevel === '1')) ||
         // 진료지원센터장: ADMIN이면서 jobLevel 2
         (currentUser.role === 'ADMIN' && currentUser.jobLevel && parseInt(currentUser.jobLevel) === 2) ||
         //최고 관리자(superAdmin)
