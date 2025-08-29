@@ -103,10 +103,6 @@ export const saveLeaveApplication = async (id: number, updateData: any, token: s
         throw new Error('휴가 종류를 선택해주세요.');
     }
 
-    if (!updateData.totalDays || updateData.totalDays <= 0) {
-        throw new Error('유효한 휴가 기간을 입력해주세요.');
-    }
-
     // 백엔드 LeaveApplicationUpdateFormRequestDto 구조에 맞는 payload 생성
     const payload = {
         applicantInfo: updateData.applicantInfo || {},

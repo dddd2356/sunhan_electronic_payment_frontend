@@ -199,9 +199,6 @@ const LeaveApplication = () => {
     });
     const [totalDays, setTotalDays] = useState(0);
     const [applicationDate, setApplicationDate] = useState('');
-    const handleConsecutivePeriodChange = (field: string, value: string) => {
-        setConsecutivePeriod(prev => ({ ...prev, [field]: value }));
-    };
 
     const handleFlexiblePeriodChange = (index: number, field: keyof FlexiblePeriod, value: string) => {
         setFlexiblePeriods(prev => {
@@ -226,6 +223,11 @@ const LeaveApplication = () => {
     // 기간 계산 함수
     const calculateTotalDays = useCallback(() => {
         let total = 0;
+        // 연차휴가가 선택되지 않은 경우 일수 계산하지 않음
+        if (!leaveTypes.연차휴가) {
+            setTotalDays(0);
+            return;
+        }
 
         // 첫 번째 칸(유연한 기간) 계산
         flexiblePeriods.forEach(period => {
@@ -267,6 +269,17 @@ const LeaveApplication = () => {
                 ...prev,
                 [type]: !prev[type]
             };
+            // 연차휴가가 선택/해제되었을 때 총 일수 재계산
+            if (type === '연차휴가') {
+                // 연차휴가가 해제되면 totalDays를 0으로 설정
+                if (!updated[type]) {
+                    setTotalDays(0);
+                } else {
+                    // 연차휴가가 선택되면 기존 계산 로직 실행
+                    calculateTotalDays();
+                }
+            }
+
             console.log('휴가 종류 변경됨:', updated);
             return updated;
         });
