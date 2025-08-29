@@ -304,22 +304,16 @@ const LeaveApplicationBoard: React.FC = () => {
     };
 
     const getTotalDaysFromFormData = (app: LeaveApplication): number => {
-        console.log('앱 데이터:', {
-            id: app.id,
-            totalDays: app.totalDays,
-            formDataJson: app.formDataJson
-        });
+        // 먼저 API에서 받은 totalDays 사용 (null/undefined가 아닌 경우)
+        if (app.totalDays !== undefined && app.totalDays !== null) {
+            return app.totalDays;
+        }
 
         // formDataJson이 있다면 파싱해서 totalDays 가져오기
         if (app.formDataJson) {
             try {
                 const formData = JSON.parse(app.formDataJson);
-                console.log('파싱된 formData 전체:', formData);
-                console.log('formData.totalDays:', formData.totalDays);
-                console.log('formData의 모든 키:', Object.keys(formData));
-
                 if (formData.totalDays !== undefined && formData.totalDays !== null) {
-                    console.log('formData에서 totalDays 사용:', formData.totalDays);
                     return formData.totalDays;
                 }
             } catch (e) {
@@ -327,15 +321,9 @@ const LeaveApplicationBoard: React.FC = () => {
             }
         }
 
-        // 먼저 API에서 받은 totalDays 사용 (0이 아닌 경우만)
-        if (app.totalDays !== undefined && app.totalDays !== null && app.totalDays > 0) {
-            console.log('API totalDays 사용:', app.totalDays);
-            return app.totalDays;
-        }
-
-        console.log('기본값 0 반환');
         return 0;
     };
+
 // 탭 변경 시 검색 초기화를 위한 useEffect 수정
     useEffect(() => {
         if (currentUser) {
@@ -610,7 +598,8 @@ const LeaveApplicationBoard: React.FC = () => {
                                         {(() => {
                                             const days = getTotalDaysFromFormData(app);
                                             console.log(`앱 ID ${app.id}의 최종 days:`, days);
-                                            return days > 0 ? `${days % 1 === 0 ? days : days.toFixed(1)}일` : '-';
+                                            return days !== null && days !== undefined ?
+                                                `${days % 1 === 0 ? days : days.toFixed(1)}일` : '-';
                                         })()}
                                     </div>
                                     <div

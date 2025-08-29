@@ -1,0 +1,107 @@
+/* 전체 컨테이너 보정 */
+.leave-attachments {
+    font-family: inherit;
+    font-size: 14px;
+    color: #222;
+}
+
+/* 업로드 input */
+.upload-input {
+    display: inline-block;
+    margin: 6px 0;
+}
+
+/* 업로드 중 텍스트 */
+.uploading {
+    color: #666;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+/* 에러 텍스트 */
+.attach-error {
+    color: #c9302c;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+/* 첨부파일 리스트 전체 */
+.attachment-list {
+    padding: 0;
+    margin: 8px 0;
+    list-style: none;
+}
+
+/* 개별 항목 */
+.attachment-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+/* 파일명 버튼 (링크처럼 보이게) */
+.file-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: #0366d6;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* 비활성화 상태 */
+.file-link:disabled,
+.file-link[disabled] {
+    color: #999;
+    cursor: default;
+    text-decoration: none;
+}
+
+/* 파일 사이즈 텍스트 */
+.attachment-size {
+    color: #666;
+    font-size: 13px;
+    margin-left: 6px;
+    flex: 1; /* 오른쪽 버튼을 밀어냄 */
+}
+
+/* 버튼 공통 스타일 */
+.attachment-button {
+    background: #f6f8fa;
+    border: 1px solid #d1d5da;
+    color: #24292e;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* 삭제 버튼 강조(빨강 계열) */
+.attachment-button .btn-delete {
+    background: #fff5f5;
+    border: 1px solid #f0a3a3;
+    color: #c9302c;
+}
+
+/* 버튼 hover */
+.attachment-button:hover:not(:disabled) {
+    filter: brightness(0.95);
+}
+
+/* 버튼 disabled 상태 */
+.attachment-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 빈 리스트 상태 */
+.attachment-empty {
+    color: #666;
+    font-size: 13px;
+    padding: 6px 0;
+}

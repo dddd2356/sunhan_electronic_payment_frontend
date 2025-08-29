@@ -4,6 +4,11 @@ const withAuth = (token: string) => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
 });
+
+const authHeaderOnly = (token: string) => ({
+    'Authorization': `Bearer ${token}`
+});
+
 interface PaginationResponse {
     content: any[];
     totalElements: number;
@@ -307,4 +312,58 @@ export const downloadLeaveApplicationPdf = async (id: number, token: string) => 
     }
 
     return response.blob();
+};
+
+// 첨부파일 업로드 (단일 파일). 백엔드는 'file' 파라미터를 기대합니다.
+export const uploadAttachment = async (leaveApplicationId: number, file: File, token: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE}/leave-application/${leaveApplicationId}/attachments`, {
+        method: 'POST',
+        headers: authHeaderOnly(token), // 절대 Content-Type을 직접 설정하지 말 것
+        body: formData
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || '첨부파일 업로드에 실패했습니다.');
+    }
+    // AttachmentResponseDto 반환
+    return response.json();
+};
+
+// 멀티 파일을 한 번에 업로드하려면 Promise.all로 여러 파일 호출
+export const uploadAttachments = async (leaveApplicationId: number, files: File[], token: string) => {
+    const results = await Promise.all(files.map(f => uploadAttachment(leaveApplicationId, f, token)));
+    return results; // 배열 of AttachmentResponseDto
+};
+
+// 첨부파일 삭제
+export const deleteAttachmentApi = async (leaveApplicationId: number, attachmentId: number, token: string) => {
+    const response = await fetch(`${API_BASE}/leave-application/${leaveApplicationId}/attachments/${attachmentId}`, {
+        method: 'DELETE',
+        headers: withAuth(token) // 기존 withAuth는 JSON 헤더 포함. DELETE body 없음 -> 문제 없음.
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || '첨부파일 삭제에 실패했습니다.');
+    }
+
+    return response.json();
+};
+
+// 첨부파일 다운로드 (blob)
+export const downloadAttachmentApi = async (attachmentId: number, token: string) => {
+    const response = await fetch(`${API_BASE}/leave-application/attachments/${attachmentId}/download`, {
+        headers: authHeaderOnly(token)
+    });
+
+    if (!response.ok) {
+        throw new Error('첨부파일 다운로드에 실패했습니다.');
+    }
+
+    const blob = await response.blob();
+    return blob;
 };

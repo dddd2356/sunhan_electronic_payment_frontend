@@ -16,6 +16,7 @@ import { SignatureState } from "../../../types/signature";
 import dayjs from 'dayjs'; // 날짜 계산을 위해 dayjs 라이브러리 추가
 import isBetween from 'dayjs/plugin/isBetween'; // 플러그인 추가
 import RejectModal from '../../../components/RejectModal';
+import LeaveAttachments from "../../../components/LeaveAttachments";
 
 dayjs.extend(isBetween);
 
@@ -51,6 +52,13 @@ interface User {
     deptCode?: string;
     jobType?: string;
     permissions?: string[];
+}
+
+interface AttachmentDto {
+    id: number;
+    originalFileName: string;
+    fileType: string;
+    fileSize: number;
 }
 
 interface LeaveApplicationData {
@@ -94,6 +102,7 @@ interface LeaveApplicationData {
     formDataJson: string; // 서명 정보만 포함
     pdfUrl?: string; // 추가 (nullable)
     printable: boolean; // 추가
+    attachments?: AttachmentDto[];
 }
 
 
@@ -170,6 +179,7 @@ const LeaveApplication = () => {
     const [isRejectable, setIsRejectable] = useState<boolean>(false); // <-- useState 선언 추가
     const [isManager, setIsManager] = useState<boolean>(false); // <-- useState 선언 추가
     const [showRejectModal, setShowRejectModal] = useState<boolean>(false); // <-- useState 선언 추가
+    const [attachments, setAttachments] = useState<AttachmentDto[]>([]);
     // 휴가 종류 선택
     const [leaveTypes, setLeaveTypes] = useState<Record<string, boolean>>({
         연차휴가: false,
@@ -198,7 +208,14 @@ const LeaveApplication = () => {
         endDate: '',
     });
     const [totalDays, setTotalDays] = useState(0);
-    const [applicationDate, setApplicationDate] = useState('');
+    const [applicationDate, setApplicationDate] = useState(() => {
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    });
 
     const handleFlexiblePeriodChange = (index: number, field: keyof FlexiblePeriod, value: string) => {
         setFlexiblePeriods(prev => {
@@ -1146,11 +1163,25 @@ const LeaveApplication = () => {
                 });
                 const appData = appResponse.data;
                 setLeaveApplication(appData);
+
+                // appData.attachments가 있을 경우 AttachmentDto 형태로 안전 매핑합니다.
+                if (appData.attachments && Array.isArray(appData.attachments)) {
+                    const mappedAttachments = appData.attachments.map((a: any) => ({
+                        id: Number(a.id ?? a.attachmentId ?? 0),
+                        originalFileName: String(a.originalFileName ?? a.name ?? a.filename ?? ''),
+                        fileType: String(a.fileType ?? a.contentType ?? a.mimeType ?? ''),
+                        fileSize: Number(a.fileSize ?? a.size ?? 0)
+                    }));
+                    setAttachments(mappedAttachments);
+                } else {
+                    setAttachments([]);
+                }
+
                 setSubstituteInfo(prev => ({
                     ...prev,
                     userId: appData.substituteId,
                     name: appData.substituteName,
-                    position: appData.substitutePosition  // ← DTO에서 내려온 직책 사용
+                    position: appData.substitutePosition
                 }));
                 setApplicationStatus(appData.status);
 
@@ -1166,7 +1197,7 @@ const LeaveApplication = () => {
                     setCandidates([]);
                 }
 
-                // **[수정] formData 변수 타입을 'any'로 명시하여 TypeScript 오류 해결**
+                // ** formData 변수 타입을 'any'로 명시하여 TypeScript 오류 해결**
                 let formData: any = {};
                 if (appData.formDataJson) {
                     try {
@@ -1240,7 +1271,17 @@ const LeaveApplication = () => {
                 ]);
                 setConsecutivePeriod(savedConsecutivePeriod);
                 setTotalDays(formData.totalDays || appData.totalDays || 0);
-                setApplicationDate(formData.applicationDate || appData.applicationDate || '');
+                const savedApplicationDate = formData.applicationDate || appData.applicationDate;
+                if (savedApplicationDate && savedApplicationDate.trim() !== '') {
+                    setApplicationDate(savedApplicationDate);
+                } else {
+                    // 저장된 날짜가 없으면 오늘 날짜로 설정
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    setApplicationDate(`${year}-${month}-${day}`);
+                }
 
                 // **[수정] 서명 정보 설정 - 기존 방식 제거하고 새로운 방식 적용**
                 // 3. 서명 정보 초기화 후 로드
@@ -2109,6 +2150,7 @@ const LeaveApplication = () => {
                                     }}
                                     className="date-input"
                                     placeholder="2024"
+                                    readOnly={isFormReadOnly} // 이 줄 추가
                                 />
                                 <span>년</span>
                                 <input
@@ -2120,6 +2162,7 @@ const LeaveApplication = () => {
                                     }}
                                     className="date-input"
                                     placeholder="12"
+                                    readOnly={isFormReadOnly} // 이 줄 추가
                                 />
                                 <span>월</span>
                                 <input
@@ -2131,40 +2174,42 @@ const LeaveApplication = () => {
                                     }}
                                     className="date-input"
                                     placeholder="25"
+                                    readOnly={isFormReadOnly} // 이 줄 추가
                                 />
                                 <span>일</span>
                             </div>
-                        </div>
-                        <div className="applicant-signature">
-                            <span>위 신청인 : </span>
-                            <input
-                                type="text"
-                                value={applicantInfo.name}
-                                onChange={(e) => setApplicantInfo(prev => ({...prev, name: e.target.value}))}
-                                className="form-input-inline"
-                                placeholder="성명 입력"
-                            />
-                            <span
-                                className="signature-inline"
-                                onClick={() => handleSignatureClick('applicant')}
-                            >
-                                {/* signatures.applicant의 첫 번째 요소에 signatureImageUrl이 있고, isSigned가 true인 경우 */}
-                                {signatures.applicant?.[0]?.imageUrl && signatures.applicant?.[0]?.isSigned ? (
-                                    <img
-                                        src={signatures.applicant[0].imageUrl}
-                                        alt="신청인 서명"
-                                        className="actual-signature-image" // 이미지 스타일링을 위한 클래스 추가
-                                    />
-                                ) : (
-                                    // isSigned는 true이지만 signatureImageUrl이 없는 경우 (또는 isSigned만 true인 경우)
-                                    signatures.applicant?.[0]?.isSigned ? (
-                                        '(사인이 이미 서명되었습니다.)' // 또는 '사인이 이미 서명되었습니다.' 메시지 사용
+
+                            <div className="applicant-signature">
+                                <span>위 신청인 : </span>
+                                <input
+                                    type="text"
+                                    value={applicantInfo.name}
+                                    onChange={(e) => setApplicantInfo(prev => ({...prev, name: e.target.value}))}
+                                    className="form-input-inline"
+                                    placeholder="성명 입력"
+                                />
+                                <span
+                                    className="signature-inline"
+                                    onClick={() => handleSignatureClick('applicant')}
+                                >
+                                    {/* signatures.applicant의 첫 번째 요소에 signatureImageUrl이 있고, isSigned가 true인 경우 */}
+                                    {signatures.applicant?.[0]?.imageUrl && signatures.applicant?.[0]?.isSigned ? (
+                                        <img
+                                            src={signatures.applicant[0].imageUrl}
+                                            alt="신청인 서명"
+                                            className="actual-signature-image" // 이미지 스타일링을 위한 클래스 추가
+                                        />
                                     ) : (
-                                        // 서명이 아직 안 된 경우
-                                        '(서명 또는 인)'
-                                    )
-                                )}
-                             </span>
+                                        // isSigned는 true이지만 signatureImageUrl이 없는 경우 (또는 isSigned만 true인 경우)
+                                        signatures.applicant?.[0]?.isSigned ? (
+                                            '(사인이 이미 서명되었습니다.)' // 또는 '사인이 이미 서명되었습니다.' 메시지 사용
+                                        ) : (
+                                            // 서명이 아직 안 된 경우
+                                            '(서명 또는 인)'
+                                        )
+                                    )}
+                                 </span>
+                            </div>
                         </div>
                     </div>
 
@@ -2182,6 +2227,19 @@ const LeaveApplication = () => {
                         <div className="common-footer" style={{marginBottom: '30px'}}>
                             SUNHAN HOSPITIAL
                         </div>
+
+                        <LeaveAttachments
+                            leaveApplicationId={leaveApplication.id}
+                            token={token!}
+                            initialAttachments={attachments.length ? attachments : (leaveApplication.attachments || [])}
+                            disabled={isFormReadOnly}
+                            readOnly={applicationStatus !== 'DRAFT'}
+                            onChange={(newAttachments) => {
+                                setAttachments(newAttachments);
+                                setLeaveApplication(prev => prev ? { ...prev, attachments: newAttachments } : prev);
+                            }}
+                        />
+
                         {/* 신청자가 초안 상태일 때 */}
                         {applicationStatus === 'DRAFT' && (
                             <>
