@@ -9,6 +9,7 @@ interface User {
     deptCode: string;
     jobLevel: string;
     role: string;
+    useFlag: string;
 }
 
 interface CurrentUserPermissions {
@@ -90,6 +91,11 @@ export const AdminDashboard: React.FC = () => {
     const [permissionAction, setPermissionAction] = useState<'grant' | 'revoke'>('grant');
     const [permissionTarget, setPermissionTarget] = useState<'user' | 'department'>('user');
 
+    // 컴포넌트에 추가할 상태 및 함수들
+    const [selectedUserForFlag, setSelectedUserForFlag] = useState<User | null>(null);
+    const [newUseFlag, setNewUseFlag] = useState<string>('');
+    const [showAllUsers, setShowAllUsers] = useState<boolean>(false); // 전체/재직자 토글
+
     // ## API Helper for Authenticated Requests ##
     const getAuthHeaders = useCallback(() => {
         return {
@@ -117,6 +123,67 @@ export const AdminDashboard: React.FC = () => {
             setError(e.message);
         }
     }, [getAuthHeaders]);
+
+// API 요청 함수 (기존 fetchUsers는 그대로 사용)
+    const fetchAllUsersIncludingInactive = useCallback(async () => {
+        // 실제로는 같은 엔드포인트를 사용하되, 프론트엔드에서 필터링
+        await fetchUsers(); // 이미 모든 권한 내 사용자를 가져옴
+    }, [fetchUsers]);
+
+    const handleUpdateUserFlag = async () => {
+        if (!selectedUserForFlag || !newUseFlag) return;
+
+        try {
+            const res = await fetch('/api/v1/admin/update-user-flag', {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    targetUserId: selectedUserForFlag.userId,
+                    newUseFlag
+                }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Failed to update user flag');
+            }
+
+            setSelectedUserForFlag(null);
+            setNewUseFlag('');
+
+            // 데이터 새로고침
+            await fetchUsers();
+        } catch (e: any) {
+            setError(e.message);
+        }
+    };
+
+    // 필터링된 사용자 목록 (기존 filteredUsers 수정)
+    const filteredUsers = useMemo(() => {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+        let usersToFilter = users;
+
+        // showAllUsers가 false면 재직자만 표시
+        if (!showAllUsers) {
+            usersToFilter = users.filter(user => user.useFlag === '1');
+        }
+
+        return usersToFilter.filter(user => {
+            if (!lowerCaseSearchTerm) return true;
+            return (
+                user.userId.toLowerCase().includes(lowerCaseSearchTerm) ||
+                user.userName.toLowerCase().includes(lowerCaseSearchTerm) ||
+                user.deptCode.toLowerCase().includes(lowerCaseSearchTerm)
+            );
+        });
+    }, [users, searchTerm, showAllUsers]);
+
+// 토글 함수 (API 호출 없이 상태만 변경)
+    const handleToggleUserView = () => {
+        setShowAllUsers(!showAllUsers);
+    };
+
 
     const fetchPermissionTypes = useCallback(async () => {
         try {
@@ -449,17 +516,17 @@ export const AdminDashboard: React.FC = () => {
     }, [selectedUser]);
 
     // ## Search and Pagination Logic ##
-    const filteredUsers = useMemo(() => {
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        return users.filter(user => {
-            if (!lowerCaseSearchTerm) return true;
-            return (
-                user.userId.toLowerCase().includes(lowerCaseSearchTerm) ||
-                user.userName.toLowerCase().includes(lowerCaseSearchTerm) ||
-                user.deptCode.toLowerCase().includes(lowerCaseSearchTerm)
-            );
-        });
-    }, [users, searchTerm]);
+    // const filteredUsers = useMemo(() => {
+    //     const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    //     return users.filter(user => {
+    //         if (!lowerCaseSearchTerm) return true;
+    //         return (
+    //             user.userId.toLowerCase().includes(lowerCaseSearchTerm) ||
+    //             user.userName.toLowerCase().includes(lowerCaseSearchTerm) ||
+    //             user.deptCode.toLowerCase().includes(lowerCaseSearchTerm)
+    //         );
+    //     });
+    // }, [users, searchTerm]);
 
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
@@ -488,9 +555,22 @@ export const AdminDashboard: React.FC = () => {
         return <Layout><div className="admin-error-display-initial">Error: {error}</div></Layout>;
     }
 
+
+
     const renderUserManagementTab = () => (
         <>
             {/* Search Section */}
+            {/* 컨트롤 섹션 - 검색 위에 추가 */}
+            <div className="admin-controls-section">
+                <button
+                    onClick={handleToggleUserView}
+                    className={`admin-toggle-button ${showAllUsers ? 'active' : ''}`}
+                >
+                    {showAllUsers ? '재직자만 보기' : '전체 보기 (퇴사자 포함)'}
+                </button>
+            </div>
+
+            {/* 기존 검색 섹션 */}
             <div className="admin-search-section">
                 <input
                     type="text"
@@ -509,6 +589,7 @@ export const AdminDashboard: React.FC = () => {
                         <th className="admin-table-cell">Name</th>
                         <th className="admin-table-cell">Department</th>
                         <th className="admin-table-cell">Job Level</th>
+                        <th className="admin-table-cell">재직상태</th>
                         <th className="admin-table-cell">Role</th>
                         <th className="admin-table-cell admin-action-buttons">Actions</th>
                     </tr>
@@ -522,23 +603,43 @@ export const AdminDashboard: React.FC = () => {
                                 <td className="admin-table-cell">{user.deptCode}</td>
                                 <td className="admin-table-cell">{user.jobLevel}</td>
                                 <td className="admin-table-cell">
-                                    <span className={`admin-role-badge ${user.role === 'ADMIN' ? 'admin' : 'user'}`}>
-                                        {user.role}
-                                    </span>
+                                <span className={`admin-status-badge ${user.useFlag === '1' ? 'active' : 'inactive'}`}>
+                                    {user.useFlag === '1' ? '재직' : '퇴사'}
+                                </span>
+                                </td>
+                                <td className="admin-table-cell">
+                                <span className={`admin-role-badge ${user.role === 'ADMIN' ? 'admin' : 'user'}`}>
+                                    {user.role}
+                                </span>
                                 </td>
                                 <td className="admin-table-cell admin-action-buttons">
                                     {user.role === 'USER' ? (
-                                        <button onClick={() => handleGrantAdmin(user.userId)} className="admin-action-button admin-button-grant-admin">Grant Admin</button>
+                                        <button onClick={() => handleGrantAdmin(user.userId)}
+                                                className="admin-action-button admin-button-grant-admin">Grant
+                                            Admin</button>
                                     ) : (
-                                        <button onClick={() => handleRevokeAdmin(user.userId)} className="admin-action-button admin-button-revoke-admin">Revoke Admin</button>
+                                        <button onClick={() => handleRevokeAdmin(user.userId)}
+                                                className="admin-action-button admin-button-revoke-admin">Revoke
+                                            Admin</button>
                                     )}
-                                    <button onClick={() => setSelectedUser(user)} className="admin-action-button admin-button-update-level">Update Level</button>
+                                    <button onClick={() => setSelectedUser(user)}
+                                            className="admin-action-button admin-button-update-level">Update Level
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedUserForFlag(user);
+                                            setNewUseFlag(user.useFlag);
+                                        }}
+                                        className="admin-action-button admin-button-update-flag"
+                                    >
+                                        재직상태 변경
+                                    </button>
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={6} className="admin-table-cell admin-no-results">No users found.</td>
+                            <td colSpan={7} className="admin-table-cell admin-no-results">No users found.</td>
                         </tr>
                     )}
                     </tbody>
@@ -571,6 +672,44 @@ export const AdminDashboard: React.FC = () => {
                     >
                         Next
                     </button>
+                </div>
+            )}
+            {/* UserFlag 변경 모달 - 기존 JobLevel 모달 다음에 추가 */}
+            {selectedUserForFlag && (
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal-content">
+                        <h2 className="admin-modal-title">
+                            {selectedUserForFlag.userName}의 재직상태 변경
+                        </h2>
+                        <div className="admin-form-group">
+                            <label htmlFor="useFlagSelect" className="admin-form-label">
+                                재직상태
+                            </label>
+                            <select
+                                id="useFlagSelect"
+                                value={newUseFlag}
+                                onChange={e => setNewUseFlag(e.target.value)}
+                                className="admin-form-select"
+                            >
+                                <option value="1">재직</option>
+                                <option value="0">퇴사</option>
+                            </select>
+                        </div>
+                        <div className="admin-modal-actions">
+                            <button
+                                onClick={() => setSelectedUserForFlag(null)}
+                                className="admin-modal-button admin-modal-cancel-button"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleUpdateUserFlag}
+                                className="admin-modal-button admin-modal-save-button"
+                            >
+                                저장
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </>

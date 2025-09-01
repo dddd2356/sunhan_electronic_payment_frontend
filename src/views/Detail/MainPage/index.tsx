@@ -557,21 +557,21 @@ const MainPage: React.FC = () => {
                                     </div>
                                 </button>
 
-                                <button className="mp-action-btn mp-action-documents">
-                                    <div className="mp-action-icon">🔧</div>
-                                    <div className="mp-action-details">
-                                        <span className="mp-action-title">준비중</span>
-                                        {/*<span className="mp-action-desc">업무 현황 및 통계</span>*/}
-                                    </div>
-                                </button>
+                                {/*<button className="mp-action-btn mp-action-documents">*/}
+                                {/*    <div className="mp-action-icon">🔧</div>*/}
+                                {/*    <div className="mp-action-details">*/}
+                                {/*        <span className="mp-action-title">준비중</span>*/}
+                                {/*        /!*<span className="mp-action-desc">업무 현황 및 통계</span>*!/*/}
+                                {/*    </div>*/}
+                                {/*</button>*/}
 
-                                <button className="mp-action-btn mp-action-settings">
-                                    <div className="mp-action-icon">🔧</div>
-                                    <div className="mp-action-details">
-                                        <span className="mp-action-title">준비중</span>
-                                        {/*<span className="mp-action-desc">시스템 환경 설정</span>*/}
-                                    </div>
-                                </button>
+                                {/*<button className="mp-action-btn mp-action-settings">*/}
+                                {/*    <div className="mp-action-icon">🔧</div>*/}
+                                {/*    <div className="mp-action-details">*/}
+                                {/*        <span className="mp-action-title">준비중</span>*/}
+                                {/*        /!*<span className="mp-action-desc">시스템 환경 설정</span>*!/*/}
+                                {/*    </div>*/}
+                                {/*</button>*/}
                             </div>
                         </div>
 

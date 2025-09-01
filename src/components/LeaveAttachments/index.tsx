@@ -94,10 +94,10 @@ const LeaveAttachments: React.FC<Props> = ({ leaveApplicationId, token, initialA
 
     return (
         <div className="leave-attachments">
-            <label htmlFor={`file-input-${leaveApplicationId}`}>첨부파일</label>
-            {/* DRAFT 상태가 아니면 파일 업로드 입력란 숨김 */}
-            {!readOnly && (
-                <div>
+            {/* 라벨과 파일 입력을 같은 줄에 배치 */}
+            {!readOnly ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
+                    <label htmlFor={`file-input-${leaveApplicationId}`}>첨부파일</label>
                     <input
                         id={`file-input-${leaveApplicationId}`}
                         className="upload-input"
@@ -107,6 +107,10 @@ const LeaveAttachments: React.FC<Props> = ({ leaveApplicationId, token, initialA
                         onChange={(e) => handleFiles(e.target.files)}
                         disabled={uploading || disabled}
                     />
+                </div>
+            ) : (
+                <div style={{ marginBottom: '8px' }}>
+                    <label>첨부파일</label>
                 </div>
             )}
 

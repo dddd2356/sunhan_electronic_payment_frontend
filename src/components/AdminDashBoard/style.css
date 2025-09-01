@@ -523,6 +523,82 @@
     font-style: italic;
 }
 
+/* 재직상태 뱃지 스타일 */
+.admin-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+.admin-status-badge.active {
+    background-color: #28a745; /* 녹색 - 재직 */
+}
+
+.admin-status-badge.inactive {
+    background-color: #dc3545; /* 빨간색 - 퇴사 */
+}
+
+/* 토글 버튼 스타일 */
+.admin-toggle-button {
+    padding: 8px 16px;
+    margin-bottom: 16px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    background-color: white;
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-toggle-button:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-toggle-button.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* 컨트롤 섹션 */
+.admin-controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* 재직상태 변경 버튼 */
+.admin-button-update-flag {
+    background-color: #ffc107;
+    border: 1px solid #ffc107;
+    color: #212529;
+}
+
+.admin-button-update-flag:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* 모달 셀렉트 박스 */
+.admin-form-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.admin-form-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
 @media (max-width: 768px) {
     .form-row {
         flex-direction: column;

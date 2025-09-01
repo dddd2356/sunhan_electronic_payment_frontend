@@ -28,6 +28,8 @@ export interface User {
     jobType?: string;
     phone?: string | null;
     address?: string | null;
+    useFlag?: string;
+    permissions?: string[];
 }
 
 export interface SignatureState {
@@ -67,6 +69,9 @@ export const fetchContracts = async (completed = false, token?: string): Promise
 /** 사용자(조직도) 목록 조회 */
 export const fetchUsers = async (token?: string): Promise<User[]> => {
     const resp = await axios.get<User[]>(`${API_BASE}/user/all`, authHeader(token));
+    const data = resp.data || [];
+    // 서버가 이미 재직자만 내려주면 filter는 무해합니다.
+    const activeOnly = data.filter(u => String(u.useFlag ?? '1') === '1');
     return resp.data;
 };
 

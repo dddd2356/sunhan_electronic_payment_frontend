@@ -33,6 +33,7 @@ interface User {
     phone: string;
     address: string;
     role: string;
+    useFlag?: string;
     permissions?: string[];
 }
 
@@ -255,7 +256,9 @@ const EmploymentContractBoard: React.FC = () => {
         try {
             const usersData = await fetchUsers(cookies.accessToken);
             console.log('불러온 사용자:', usersData);
-            setUsers(usersData as any);
+            // 만약 fetchUsers가 필터링 안 한다면 다시 한 번 안전 필터:
+            const activeOnly = (usersData || []).filter((u: any) => String(u.useFlag ?? '1') === '1');
+            setUsers(activeOnly as any);
         } catch (err) {
             console.error('사용자 목록 조회 실패:', err);
         }

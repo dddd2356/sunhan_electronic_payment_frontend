@@ -3,41 +3,76 @@
     font-family: inherit;
     font-size: 14px;
     color: #222;
+    text-align: left;
+    margin-bottom: 40px;
 }
 
-/* 업로드 input */
+/* 라벨 스타일 */
+.leave-attachments label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    text-align: left;
+}
+
+/* 업로드 input 컨테이너 */
+.leave-attachments > div {
+    text-align: left;
+}
+
+/* 업로드 input - 더 작고 깔끔하게 */
 .upload-input {
     display: inline-block;
-    margin: 6px 0;
+    margin: 4px 0;
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid #d1d5da;
+    border-radius: 4px;
+    background: #f8f9fa;
+    max-width: 250px;
+}
+
+.upload-input::-webkit-file-upload-button {
+    background: #f1f3f4;
+    border: 1px solid #dadce0;
+    border-radius: 3px;
+    padding: 4px 8px;
+    margin-right: 8px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.upload-input::-webkit-file-upload-button:hover {
+    background: #e8eaed;
 }
 
 /* 업로드 중 텍스트 */
 .uploading {
     color: #666;
-    font-size: 13px;
-    margin-top: 6px;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 /* 에러 텍스트 */
 .attach-error {
     color: #c9302c;
-    font-size: 13px;
-    margin-top: 6px;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 /* 첨부파일 리스트 전체 */
 .attachment-list {
     padding: 0;
-    margin: 8px 0;
+    margin: 6px 0;
     list-style: none;
 }
 
-/* 개별 항목 */
+/* 개별 항목 - 더 컴팩트하게 */
 .attachment-item {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px dashed #eee;
 }
 
@@ -50,8 +85,17 @@
     color: #0366d6;
     text-decoration: underline;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 500;
+    font-size: 13px;
+    text-align: left;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-link:hover:not(:disabled) {
+    color: #0256cc;
 }
 
 /* 비활성화 상태 */
@@ -62,27 +106,28 @@
     text-decoration: none;
 }
 
-/* 파일 사이즈 텍스트 */
+/* 파일 사이즈 텍스트 - 더 작고 회색으로 */
 .attachment-size {
-    color: #666;
-    font-size: 13px;
-    margin-left: 6px;
-    flex: 1; /* 오른쪽 버튼을 밀어냄 */
+    color: #888;
+    font-size: 11px;
+    flex-shrink: 0;
 }
 
-/* 버튼 공통 스타일 */
+/* 버튼 공통 스타일 - 더 작게 */
 .attachment-button {
     background: #f6f8fa;
     border: 1px solid #d1d5da;
     color: #24292e;
-    padding: 6px 10px;
-    border-radius: 4px;
+    padding: 4px 8px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 11px;
+    min-width: 40px;
+    flex-shrink: 0;
 }
 
-/* 삭제 버튼 강조(빨강 계열) */
-.attachment-button .btn-delete {
+/* 삭제 버튼 강조(빨강 계열) - 선택자 수정 */
+.attachment-button.btn-delete {
     background: #fff5f5;
     border: 1px solid #f0a3a3;
     color: #c9302c;
@@ -102,6 +147,7 @@
 /* 빈 리스트 상태 */
 .attachment-empty {
     color: #666;
-    font-size: 13px;
-    padding: 6px 0;
+    font-size: 12px;
+    padding: 4px 0;
+    font-style: italic;
 }
