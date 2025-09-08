@@ -130,34 +130,6 @@ export const AdminDashboard: React.FC = () => {
         await fetchUsers(); // 이미 모든 권한 내 사용자를 가져옴
     }, [fetchUsers]);
 
-    const handleUpdateUserFlag = async () => {
-        if (!selectedUserForFlag || !newUseFlag) return;
-
-        try {
-            const res = await fetch('/api/v1/admin/update-user-flag', {
-                method: 'PUT',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    targetUserId: selectedUserForFlag.userId,
-                    newUseFlag
-                }),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Failed to update user flag');
-            }
-
-            setSelectedUserForFlag(null);
-            setNewUseFlag('');
-
-            // 데이터 새로고침
-            await fetchUsers();
-        } catch (e: any) {
-            setError(e.message);
-        }
-    };
-
     // 필터링된 사용자 목록 (기존 filteredUsers 수정)
     const filteredUsers = useMemo(() => {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -515,19 +487,6 @@ export const AdminDashboard: React.FC = () => {
         }
     }, [selectedUser]);
 
-    // ## Search and Pagination Logic ##
-    // const filteredUsers = useMemo(() => {
-    //     const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    //     return users.filter(user => {
-    //         if (!lowerCaseSearchTerm) return true;
-    //         return (
-    //             user.userId.toLowerCase().includes(lowerCaseSearchTerm) ||
-    //             user.userName.toLowerCase().includes(lowerCaseSearchTerm) ||
-    //             user.deptCode.toLowerCase().includes(lowerCaseSearchTerm)
-    //         );
-    //     });
-    // }, [users, searchTerm]);
-
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     const paginatedUsers = useMemo(() => {
@@ -625,15 +584,6 @@ export const AdminDashboard: React.FC = () => {
                                     <button onClick={() => setSelectedUser(user)}
                                             className="admin-action-button admin-button-update-level">Update Level
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedUserForFlag(user);
-                                            setNewUseFlag(user.useFlag);
-                                        }}
-                                        className="admin-action-button admin-button-update-flag"
-                                    >
-                                        재직상태 변경
-                                    </button>
                                 </td>
                             </tr>
                         ))
@@ -672,44 +622,6 @@ export const AdminDashboard: React.FC = () => {
                     >
                         Next
                     </button>
-                </div>
-            )}
-            {/* UserFlag 변경 모달 - 기존 JobLevel 모달 다음에 추가 */}
-            {selectedUserForFlag && (
-                <div className="admin-modal-overlay">
-                    <div className="admin-modal-content">
-                        <h2 className="admin-modal-title">
-                            {selectedUserForFlag.userName}의 재직상태 변경
-                        </h2>
-                        <div className="admin-form-group">
-                            <label htmlFor="useFlagSelect" className="admin-form-label">
-                                재직상태
-                            </label>
-                            <select
-                                id="useFlagSelect"
-                                value={newUseFlag}
-                                onChange={e => setNewUseFlag(e.target.value)}
-                                className="admin-form-select"
-                            >
-                                <option value="1">재직</option>
-                                <option value="0">퇴사</option>
-                            </select>
-                        </div>
-                        <div className="admin-modal-actions">
-                            <button
-                                onClick={() => setSelectedUserForFlag(null)}
-                                className="admin-modal-button admin-modal-cancel-button"
-                            >
-                                취소
-                            </button>
-                            <button
-                                onClick={handleUpdateUserFlag}
-                                className="admin-modal-button admin-modal-save-button"
-                            >
-                                저장
-                            </button>
-                        </div>
-                    </div>
                 </div>
             )}
         </>

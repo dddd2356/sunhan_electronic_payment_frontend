@@ -164,6 +164,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         휴가원 관리자 페이지
                     </li>
                 )}
+                {isAdmin  && (
+                    <li onClick={() => navigate('/admin/sync-management-dashboard')}
+                        className="menu-title cursor-pointer font-bold text-purple-600">
+                        동기화 페이지
+                    </li>
+                )}
             </ul>
         </div>
     );

@@ -10,6 +10,7 @@ import LeaveApplicationBoard from "./components/LeaveApplicationBoard";
 import LeaveApplication from "./views/Detail/LeaveApplication";
 import MyPage from "./views/Detail/MyPage";
 import AdminVacationManagement from "./components/AdminVacationManagement";
+import SyncManagementDashboard from "./components/SyncManagementDashboard";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/admin">
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="vacation" element={<AdminVacationManagement/>}/>
+              <Route path="sync-management-dashboard" element={<SyncManagementDashboard/>}/>
           </Route>
     </Routes>
   );
