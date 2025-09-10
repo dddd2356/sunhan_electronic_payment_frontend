@@ -24,9 +24,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [jobLevel, setJobLevel] = useState<number>(0);
     const [permissions, setPermissions] = useState<string[]>([]);
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
     const fetchProfileData = (user_id: string) => {
         axios
-            .get(`http://localhost:8080/api/v1/user/${user_id}`, {
+            .get(`${API_BASE_URL}/user/${user_id}`, {
                 headers: { Authorization: `Bearer ${cookies.accessToken}` },
                 withCredentials: true,
             })
@@ -52,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     // 3. checkUserStatus 함수 수정
     const checkUserStatus = () => {
         axios
-            .get('http://localhost:8080/api/v1/user/me', {
+            .get(`${API_BASE_URL}/user/me`, {
                 headers: { Authorization: `Bearer ${cookies.accessToken}` },
             })
             .then((res) => {
@@ -105,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
     const handleLogout = async () => {
         const loginMethod = "web";
-        const logoutUrl = `http://localhost:8080/api/v1/auth/logout/${loginMethod}`;
+        const logoutUrl = `${API_BASE_URL}/auth/logout/${loginMethod}`;
         const accessToken = cookies.accessToken;
         try {
             const response = await axios.post(logoutUrl, {}, {
@@ -116,12 +117,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             removeCookie("accessToken", { path: "/", secure: true, sameSite: "none" });
 
             console.log("✅ 클라이언트 쿠키 삭제 완료");
-            navigate("/auth/sign-in");
+            navigate("/");
         } catch (error: any) {
             console.error("❌ 로그아웃 실패:", error.response?.data || error.message);
             removeCookie("accessToken", { path: "/", secure: true, sameSite: "none" });
             console.log("✅ 클라이언트 쿠키 삭제 완료 (실패 시)");
-            navigate("/auth/sign-in");
+            navigate("/");
         }
     };
     const canViewVacationAdmin = isAdmin && (((jobLevel == 0 || jobLevel == 1)&& permissions.includes('HR_LEAVE_APPLICATION')) || jobLevel >= 2);

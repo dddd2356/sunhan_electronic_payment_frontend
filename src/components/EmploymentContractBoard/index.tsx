@@ -179,11 +179,6 @@ const EmploymentContractBoard: React.FC = () => {
         console.log('직원 목록:', users);
     }, [users]);
 
-    // useEffect: currentUser 뿐 아니라 tab이 바뀔 때도 재호출
-    useEffect(() => {
-        if (currentUser) loadContracts();
-    }, [currentUser, tab]);
-
     const loadContracts = async () => {
         setLoading(true);
         try {

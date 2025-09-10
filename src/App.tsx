@@ -15,9 +15,9 @@ import SyncManagementDashboard from "./components/SyncManagementDashboard";
 function App() {
   return (
       <Routes>
-        <Route path="/auth">
-          <Route path="sign-in" element={<SignIn/>} />
-        </Route>
+
+          <Route path="/" element={<SignIn/>} />
+
         <Route path="/detail">
             <Route path="main-page" element={<MainPage/>} />
             <Route path="my-page" element={<MyPage/>}/>

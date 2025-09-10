@@ -597,7 +597,6 @@ const LeaveApplicationBoard: React.FC = () => {
                                     <div className="leave-application-item-days">
                                         {(() => {
                                             const days = getTotalDaysFromFormData(app);
-                                            console.log(`앱 ID ${app.id}의 최종 days:`, days);
                                             return days !== null && days !== undefined ?
                                                 `${days % 1 === 0 ? days : days.toFixed(1)}일` : '-';
                                         })()}

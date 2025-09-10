@@ -116,7 +116,7 @@ export const SyncManagementDashboard: React.FC = () => {
                         <div className="sync-action-group-single">
                             <input
                                 type="text"
-                                placeholder="동기화할 사용자 ID 입력"
+                                placeholder="동기화할 사용자 사원번호 입력"
                                 value={userIdInput}
                                 onChange={(e) => setUserIdInput(e.target.value)}
                                 disabled={isSyncing}
