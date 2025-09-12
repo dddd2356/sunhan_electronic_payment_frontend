@@ -1307,9 +1307,6 @@ const LeaveApplication = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const signaturesData = sigResponse.data;
-                    console.log('[DEBUG] 백엔드에서 받은 전체 서명 데이터:', JSON.stringify(signaturesData, null, 2));
-                    console.log('[DEBUG] signatures 객체:', signaturesData.signatures);
-
                     // 백엔드에서 받은 서명 데이터로 상태 업데이트
                     setSignatures(prev => {
                         const newSignatures = { ...prev };
@@ -1329,8 +1326,6 @@ const LeaveApplication = () => {
 
                         return newSignatures;
                     });
-
-                    console.log('[fetchApplicationData] 서명 데이터 로드 완료:', signaturesData);
 
                     // LeaveApplicationData의 boolean 필드들도 동기화
                     setLeaveApplication(prevApp => {
@@ -1750,7 +1745,7 @@ const LeaveApplication = () => {
                                         type="text"
                                         value={applicantInfo.name}
                                         onChange={(e) => setApplicantInfo(prev => ({...prev, name: e.target.value}))}
-                                        readOnly={isFormReadOnly}
+                                        readOnly={true}
                                         className="form-input"
                                         placeholder="성명 입력"
                                     />
@@ -1810,7 +1805,7 @@ const LeaveApplication = () => {
                                                 ...prev,
                                                 contact: e.target.value
                                             }))}
-                                            readOnly={isFormReadOnly}
+                                            readOnly={true}
                                             className="form-input"
                                             placeholder="주소 입력"
                                         />
@@ -1823,7 +1818,7 @@ const LeaveApplication = () => {
                                                 ...prev,
                                                 phone: e.target.value
                                             }))}
-                                            readOnly={isFormReadOnly}
+                                            readOnly={true}
                                             className="form-input"
                                             placeholder="전화번호 입력"
                                         />

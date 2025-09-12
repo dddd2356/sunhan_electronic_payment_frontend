@@ -11,6 +11,7 @@ interface UserProfile {
     userName: string;
     phone: string | null;
     address: string | null;
+    detailAddress: string | null;
     passwordChangeRequired: boolean;
     deptCode?: string;
     jobType?: string;
@@ -148,13 +149,16 @@ const MainPage: React.FC = () => {
                 setUserProfile(data);
                 console.log("Fetched User Data:", data);
 
+                // 주소와 상세 주소 중 하나라도 누락되면 팝업을 띄우도록 로직 수정
                 const isPhoneMissing = !data.phone || data.phone.trim() === '';
                 const isAddressMissing = !data.address || data.address.trim() === '';
+                const isDetailAddressMissing = !data.detailAddress || data.detailAddress.trim() === '';
 
                 console.log("Condition: passwordChangeRequired =", data.passwordChangeRequired);
                 console.log("Condition: isPhoneMissing =", isPhoneMissing);
                 console.log("Condition: isAddressMissing =", isAddressMissing);
-                console.log("Overall popup condition:", data.passwordChangeRequired || isPhoneMissing || isAddressMissing);
+                console.log("Condition: isDetailAddressMissing =", isDetailAddressMissing);
+                console.log("Overall popup condition:", data.passwordChangeRequired || isPhoneMissing || isAddressMissing || isDetailAddressMissing);
 
                 if (data.passwordChangeRequired || isPhoneMissing || isAddressMissing) {
                     setShowProfilePopup(true);
@@ -408,15 +412,19 @@ const MainPage: React.FC = () => {
                                     {!userProfile?.phone && <div className="mp-missing-badge">!</div>}
                                 </div>
 
-                                <div className={`mp-info-item ${!userProfile?.address ? 'mp-missing-data' : ''}`}>
+                                <div
+                                    className={`mp-info-item ${(!userProfile?.address && !userProfile?.detailAddress) ? 'mp-missing-data' : ''}`}>
                                     <div className="mp-info-icon">🏠</div>
                                     <div className="mp-info-details">
                                         <span className="mp-info-label">주소</span>
                                         <span className="mp-info-value">
-                                            {userProfile?.address || '미등록'}
+                                            {/* 주소와 상세 주소를 합치는 새로운 로직 */}
+                                                                            {`${userProfile?.address || ''} ${userProfile?.detailAddress || ''}`.trim() || '미등록'}
                                         </span>
                                     </div>
-                                    {!userProfile?.address && <div className="mp-missing-badge">!</div>}
+                                    {/* 뱃지는 주소와 상세 주소가 모두 없을 때만 표시 */}
+                                    {(!userProfile?.address && !userProfile?.detailAddress) &&
+                                        <div className="mp-missing-badge">!</div>}
                                 </div>
                             </div>
                         </div>
@@ -617,6 +625,7 @@ const MainPage: React.FC = () => {
                     userId={userProfile.userId}
                     initialPhone={userProfile.phone}
                     initialAddress={userProfile.address}
+                    initialDetailAddress={userProfile.detailAddress}
                     requirePasswordChange={userProfile.passwordChangeRequired}
                 />
             )}

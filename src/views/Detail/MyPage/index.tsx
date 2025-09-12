@@ -10,6 +10,7 @@ interface User {
     userName?: string;
     phone?: string | null;
     address?: string | null;
+    detailAddress?: string | null;
     role?: string;
     jobLevel?: string;
     deptCode?: string;
@@ -17,6 +18,12 @@ interface User {
     signatureUrl?: string | null;
     signimage?: string | null;  // base64 이미지 문자열
     signpath?: string | null;   // 이미지 경로 URL
+}
+
+declare global {
+    interface Window {
+        daum: any;
+    }
 }
 
 const MyPage: React.FC = () => {
@@ -30,6 +37,7 @@ const MyPage: React.FC = () => {
         userName: '',
         phone: '',
         address: '',
+        detailAddress: '',
         currentPassword: '',
         newPassword: '',
         confirmNewPassword: '',
@@ -82,6 +90,7 @@ const MyPage: React.FC = () => {
                 userName: data.userName || data.name,
                 phone: data.phone || '',
                 address: data.address || '',
+                detailAddress: data.detailAddress || '',
                 role: data.role,
                 jobLevel: data.jobLevel,
                 deptCode: data.deptCode,
@@ -95,13 +104,33 @@ const MyPage: React.FC = () => {
                 ...prev,
                 userName: userData.userName || '',
                 phone: userData.phone || '',
-                address: userData.address || ''
+                address: userData.address || '',
+                detailAddress: userData.detailAddress || ''
             }));
         } catch (e: any) {
             setError(e.message || '프로필 로드 실패');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleAddressSearch = () => {
+        if (typeof window.daum === 'undefined' || !window.daum.Postcode) {
+            alert('주소 검색 스크립트를 불러오지 못했습니다. `public/index.html` 파일을 확인해주세요.');
+            return;
+        }
+
+        new window.daum.Postcode({
+            oncomplete: function(data: any) {
+                // 도로명 주소를 formData.address에 저장
+                setFormData(prev => ({ ...prev, address: data.roadAddress, detailAddress: '' }));
+                // 상세 주소 입력 필드로 포커스 이동
+                const detailAddressInput = document.getElementById('detail-address');
+                if (detailAddressInput) {
+                    detailAddressInput.focus();
+                }
+            }
+        }).open();
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +152,8 @@ const MyPage: React.FC = () => {
             const body: any = {
                 userName: formData.userName,
                 phone: formData.phone,
-                address: formData.address
+                address: formData.address,
+                detailAddress: formData.detailAddress
             };
             if (formData.newPassword) {
                 body.currentPassword = formData.currentPassword;
@@ -247,18 +277,42 @@ const MyPage: React.FC = () => {
                                 <div className="field-label">주소</div>
                                 <div className="field-value">
                                     {isEditMode ? (
-                                        <input
-                                            className="profile-input"
-                                            name="address"
-                                            value={formData.address}
-                                            onChange={handleChange}
-                                        />
+                                        <div style={{display: 'flex', alignItems: 'center'}}>
+                                            <input
+                                                className="profile-input"
+                                                name="address"
+                                                value={formData.address}
+                                                readOnly // 주소를 직접 입력할 수 없도록 수정
+                                                style={{flex: 1, marginRight: '10px'}}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleAddressSearch} // 주소 검색 함수 호출
+                                                className="address-search-btn"
+                                            >
+                                                주소 검색
+                                            </button>
+                                        </div>
                                     ) : (
                                         user.address || '-'
                                     )}
                                 </div>
                             </div>
-
+                            <div className="profile-field">
+                                <div className="field-label">상세 주소</div>
+                                <div className="field-value">
+                                    {isEditMode ? (
+                                        <input
+                                            className="profile-input"
+                                            name="detailAddress"
+                                            value={formData.detailAddress}
+                                            onChange={handleChange}
+                                        />
+                                    ) : (
+                                        user.detailAddress || '-' // <-- user 객체에도 detailAddress 필드가 있어야 함
+                                    )}
+                                </div>
+                            </div>
                             <div className="profile-field">
                                 <div className="field-label">부서 / 직급</div>
                                 <div className="field-value">

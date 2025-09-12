@@ -28,6 +28,7 @@ export interface User {
     jobType?: string;
     phone?: string | null;
     address?: string | null;
+    detailAddress?: string | null;
     useFlag?: string;
     permissions?: string[];
 }

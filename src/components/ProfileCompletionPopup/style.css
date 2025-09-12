@@ -461,6 +461,39 @@
     border-radius: 8px;
 }
 
+.address-search-btn {
+    background: linear-gradient(135deg, var(--blue-500) 0%, var(--blue-600) 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px; /* 팝업 내 input 높이에 맞춤 */
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0; /* flex 컨테이너에서 크기가 줄어들지 않도록 함 */
+}
+
+.address-search-btn:hover {
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-700) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* 주소 입력 필드와 버튼 간의 간격 조정 */
+.profile-field .field-value > div.address-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-field .field-value > div.address-input-wrapper input {
+    flex: 1;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .popup-content {

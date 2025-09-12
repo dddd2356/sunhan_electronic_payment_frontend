@@ -359,8 +359,6 @@ const EmploymentContractBoard: React.FC = () => {
         if (currentPage > maxPage) setCurrentPage(maxPage);
     }, [filteredContracts, currentPage]);
 
-    console.log('현재 사용자 정보:', currentUser);
-
     if (loading) return <Layout>
         <div className="loading">
             로딩 중...

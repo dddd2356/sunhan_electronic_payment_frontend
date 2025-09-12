@@ -11,7 +11,14 @@ interface ProfileCompletionPopupProps {
     userId: string;
     initialPhone?: string | null;
     initialAddress?: string | null;
+    initialDetailAddress?: string | null;
     requirePasswordChange?: boolean;
+}
+
+declare global {
+    interface Window {
+        daum: any;
+    }
 }
 
 const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
@@ -21,10 +28,13 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
                                                                            userId,
                                                                            initialPhone,
                                                                            initialAddress,
+                                                                           initialDetailAddress,
                                                                            requirePasswordChange = false,
                                                                        }) => {
     const [phone, setPhone] = useState(initialPhone || '');
     const [address, setAddress] = useState(initialAddress || '');
+    // 새로운 상태: 상세 주소 (동, 호수 등)
+    const [detailAddress, setDetailAddress] = useState(initialDetailAddress || '');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -37,12 +47,12 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
     useEffect(() => {
         setPhone(initialPhone || '');
         setAddress(initialAddress || '');
-        // 팝업이 다시 열릴 때 비밀번호 필드를 초기화
+        setDetailAddress(initialDetailAddress || '');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
         setError('');
-    }, [initialPhone, initialAddress, isOpen]); // isOpen이 변경될 때도 초기화
+    }, [initialPhone, initialAddress, initialDetailAddress, isOpen]);
 
     if (!isOpen) {
         return null;
@@ -75,6 +85,25 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
         }, 'image/jpg');
     };
 
+    const handleAddressSearch = () => {
+        if (typeof window.daum === 'undefined' || !window.daum.Postcode) {
+            alert('주소 검색 스크립트를 불러오지 못했습니다. `public/index.html` 파일을 확인해주세요.');
+            return;
+        }
+
+        new window.daum.Postcode({
+            oncomplete: function(data: any) {
+                // 도로명 주소만 address 상태에 저장합니다.
+                setAddress(data.roadAddress);
+                // 상세 주소 필드에 포커스를 맞춥니다.
+                const detailAddressInput = document.getElementById('detail-address');
+                if (detailAddressInput) {
+                    detailAddressInput.focus();
+                }
+            }
+        }).open();
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -99,6 +128,7 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
             const requestBody: {
                 phone?: string;
                 address?: string;
+                detailAddress?: string;
                 currentPassword?: string;
                 newPassword?: string;
             } = {};
@@ -106,6 +136,7 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
             // phone과 address는 값이 있을 경우에만 포함
             if (phone.trim() !== '') requestBody.phone = phone.trim();
             if (address.trim() !== '') requestBody.address = address.trim();
+            if (detailAddress.trim() !== '') requestBody.detailAddress = detailAddress.trim(); // <-- 이 로직 추가
 
             // newPassword가 입력되었을 때만 currentPassword와 newPassword 포함
             if (newPassword.trim() !== '') {
@@ -160,15 +191,36 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
                     </div>
                     <div className="form-group">
                         <label htmlFor="address">주소:</label>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <input
+                                type="text"
+                                id="address"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder="주소 검색 버튼을 눌러주세요"
+                                readOnly // 추가
+                                style={{flex: 1, marginRight: '10px'}}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddressSearch} // 추가
+                                className="address-search-btn"
+                            >
+                                주소 검색
+                            </button>
+                        </div>
+                    </div>
+                    {/* 상세 주소 입력 필드 */}
+                    <div className="form-group">
+                        <label htmlFor="detail-address">상세 주소:</label>
                         <input
                             type="text"
-                            id="address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="예: 광주광역시 서구 무진대로 975(광천동)"
+                            id="detail-address"
+                            value={detailAddress}
+                            onChange={(e) => setDetailAddress(e.target.value)}
+                            placeholder="예: 101동 101호"
                         />
                     </div>
-
                     <div className="password-change-section">
                         <h3>비밀번호 변경 {requirePasswordChange && <span style={{color: 'red'}}>(필수)</span>}</h3>
                         <div className="form-group">
@@ -205,7 +257,7 @@ const ProfileCompletionPopup: React.FC<ProfileCompletionPopupProps> = ({
 
                     <h3>서명 등록</h3>
                     {/* 1) 서명 등록 버튼 */}
-                    <div className="form-group" style={{textAlign:"center"}}>
+                    <div className="form-group" style={{textAlign: "center"}}>
                         <button
                             type="button"
                             onClick={() => setShowSignature(true)}
