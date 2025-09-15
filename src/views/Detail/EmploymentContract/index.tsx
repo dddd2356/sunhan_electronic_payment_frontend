@@ -67,6 +67,8 @@ interface FormDataFields {
     treatmentImprovementExpenses: string;
     specialAllowance: string;
     adjustmentAllowance: string;
+    overtime:string;
+    nDuty:string;
     overtimePay: string;
     nDutyAllowance: string;
     overtimeDescription: string;  // 연장/야간근로 설명
@@ -112,6 +114,8 @@ const EmploymentContract = () => {
         treatmentImprovementExpenses: '',
         specialAllowance: '',
         adjustmentAllowance: '',
+        overtime:'',
+        nDuty:'',
         overtimePay: '',
         nDutyAllowance: '',
         overtimeDescription: '',
@@ -1061,7 +1065,16 @@ const EmploymentContract = () => {
                                         </th>
                                     </tr>
                                     <tr>
-                                        <th className="party-header">연장/야간수당(고정)</th>
+                                        <th className="party-header">
+                                            <input
+                                                type="text"
+                                                name="overtime"
+                                                value={formData.overtime}
+                                                onChange={handleInputChange}
+                                                placeholder="연장/야간수당(고정)"
+                                                disabled={!isDraft}
+                                            />
+                                            </th>
                                         <td className="input-cell">
                                             <input
                                                 type="text"
@@ -1069,7 +1082,7 @@ const EmploymentContract = () => {
                                                 value={formData.overtimePay}
                                                 onChange={handleInputChange}
                                                 placeholder=""
-                                                disabled={!isDraft} // ← DRAFT가 아니면 편집 금지
+                                                disabled={!isDraft}
                                             />
                                         </td>
                                         {/*<td colSpan={3} className="section-body">월 소정근로시간 209시간을 초과한 연장근로, 야간근로 가산</td>*/}
@@ -1086,7 +1099,16 @@ const EmploymentContract = () => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th className="party-header">N/당직수당</th>
+                                        <th className="party-header">
+                                            <input
+                                                type="text"
+                                                name="nDuty"
+                                                value={formData.nDuty}
+                                                onChange={handleInputChange}
+                                                placeholder="N/당직수당"
+                                                disabled={!isDraft}
+                                            />
+                                        </th>
                                         <td className="input-cell">
                                             <input
                                                 type="text"
