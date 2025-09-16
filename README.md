@@ -6,9 +6,9 @@
 
 ## 🛠️ 기술 스택
 
--   [cite_start]**Framework**: React.js [cite: 192]
--   [cite_start]**Language**: TypeScript [cite: 192]
--   [cite_start]**Styling**: HTML, CSS [cite: 192]
+-   **Framework**: React.js
+-   **Language**: TypeScript
+-   **Styling**: CSS
 -   **Data Fetching**: Axios
 -   **State Management**: Redux Toolkit (또는 Recoil, Zustand 등)
 
