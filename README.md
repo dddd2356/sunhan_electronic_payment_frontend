@@ -1,49 +1,82 @@
-# Getting Started with Create React App
+## 📖 소개
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+선한병원 내부 직원의 근로계약서 작성 및 휴가원 신청/승인 프로세스를 디지털화하여 업무 효율을 높이는 것을 목적으로 하는 전자 결재 시스템의 프론트엔드 프로젝트입니다.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🛠️ 기술 스택
 
-### `npm start`
+-   [cite_start]**Framework**: React.js [cite: 192]
+-   [cite_start]**Language**: TypeScript [cite: 192]
+-   [cite_start]**Styling**: HTML, CSS [cite: 192]
+-   **Data Fetching**: Axios
+-   **State Management**: Redux Toolkit (또는 Recoil, Zustand 등)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+---
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## ⚙️ 설치 및 실행 방법
 
-### `npm test`
+1.  **저장소 복제**
+    ```bash
+    git clone {frontend_repository_url}
+    cd {repository_name}
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2.  **패키지 설치**
+    ```bash
+    npm install
+    ```
 
-### `npm run build`
+3.  **환경 변수 설정**
+    -   프로젝트 루트에 `.env` 파일을 생성합니다.
+    -   아래 내용을 참고하여 백엔드 API 서버 주소를 입력합니다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    ```env
+    # .env
+    VITE_API_BASE_URL=[http://100.100.100.224:8080](http://100.100.100.224:8080)
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4.  **개발 서버 실행**
+    ```bash
+    npm start
+    ```
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ✨ 주요 기능
 
-### `npm run eject`
+-   [cite_start]**로그인 및 개인정보 등록** [cite: 54]
+    -   [cite_start]최초 로그인 시 병원 DB(gshhis)와 연동하여 사용자 정보를 확인하고, 로컬 DB(MariaDB)로 정보를 이전합니다. [cite: 46, 51]
+    -   [cite_start]전화번호, 주소, 디지털 서명 등 추가 개인정보를 입력받아 저장합니다. [cite: 53, 89]
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+-   [cite_start]**근로계약서 작성 및 서명** [cite: 78]
+    -   [cite_start]**인사팀**: 직원 검색 후 근로계약서의 주요 항목(계약기간, 연봉 등)을 입력하여 생성합니다. [cite: 79, 101]
+    -   [cite_start]**직원**: 본인의 근로계약서를 열람하고, '개인정보수집 동의' 및 '교부 확인'을 직접 타이핑한 후, 등록된 디지털 서명으로 계약을 완료합니다. [cite: 85, 86, 114, 116]
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+-   [cite_start]**휴가원 신청 및 결재** [cite: 122]
+    -   [cite_start]휴가원 양식을 작성하고 대직자를 지정하여 결재를 요청합니다. [cite: 152]
+    -   [cite_start]직급(일반직원, 팀장, 원장)에 따라 차등화된 다단계 결재 라인을 따릅니다. [cite: 151, 156, 161]
+    -   [cite_start]결재 진행 상태를 실시간으로 확인하고, 반려 시 사유를 조회할 수 있습니다. [cite: 154, 160]
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+-   **문서 조회 및 관리**
+    -   [cite_start]최종 완료된 근로계약서와 휴가원을 조회하고, PDF 또는 이미지 파일로 저장 및 인쇄할 수 있습니다. [cite: 121, 165]
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+---
 
-## Learn More
+## ⚙️ 환경 변수 (.env)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+-   `VITE_API_BASE_URL`: 접속할 백엔드 API 서버의 URL
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-=======
-# sunhan_electronic_payment_frontend
-선한병원 전자결재 시스템
+---
+
+## 📜 스크립트 목록
+
+-   `npm start`: 개발 서버를 실행합니다.
+-   `npm run build`: 프로덕션용으로 프로젝트를 빌드합니다.
+
+---
+
+## 📄 라이선스 / 문의
+
+-   **License**: MIT
+-   [cite_start]**Contact**: dudgus2109@gmail.com [cite: 177]
+---
