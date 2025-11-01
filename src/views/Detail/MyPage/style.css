@@ -222,11 +222,11 @@
 .field-label {
     font-weight: 700;
     color: var(--neutral-800);
-    padding-top: 12px;
     font-size: 15px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     position: relative;
+    align-self: center;
 }
 
 .field-label::after {
@@ -611,5 +611,320 @@
     .create-button, .cancel-button, .primary-button, .secondary-button, .signature-button {
         padding: 10px 18px;
         font-size: 13px;
+    }
+}
+
+/* 마케팅 수신동의 필드 스타일 */
+.marketing-consent-field {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.marketing-consent-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.marketing-consent-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    flex: 0 1 auto;
+}
+
+.marketing-consent-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* 기본 컨테이너 (앞서 추천한 값이며 필요시 조정하세요) */
+.marketing-consent-field {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f9fa;
+    padding: 8px;
+}
+.marketing-consent-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap; /* 한 줄에 고정 */
+}
+
+/* 라벨 및 체크박스 */
+.marketing-consent-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    flex: 0 1 auto;
+}
+.marketing-consent-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* --- 자세히보기 버튼 (address-search-btn 스타일을 반영) --- */
+.marketing-policy-btn {
+    background: linear-gradient(135deg, var(--blue-500) 0%, var(--blue-600) 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;     /* 라벨 텍스트와 잘 어울리도록 약간 작게 */
+    height: 34px;          /* input 높이에 맞추기 좋음 (필요시 조정) */
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.18s ease;
+    box-shadow: var(--shadow-soft, 0 4px 8px rgba(0,0,0,0.08));
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;        /* flex에서 줄어들지 않음 */
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* hover / focus 상태 */
+.marketing-policy-btn:hover,
+.marketing-policy-btn:focus {
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-700) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium, 0 8px 20px rgba(0,0,0,0.12));
+    outline: none; /* focus 시 별도 스타일 원하면 추가 */
+}
+
+.marketing-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.marketing-status.agreed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.marketing-status.declined {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f1aeb5;
+}
+
+/* 핸드폰 번호 편집 컨테이너 */
+.phone-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 핸드폰 번호 입력 및 버튼이 한 줄에 오도록 */
+.phone-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.phone-input-row .profile-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+/* 핸드폰 번호 관련 버튼들 */
+.phone-button {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 44px; /* input과 같은 높이 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.phone-button:hover::before {
+    left: 100%;
+}
+
+.phone-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* 번호변경 버튼 (노란색) */
+.phone-change-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.phone-change-btn:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+/* 인증번호 발송 버튼 (파란색) */
+.phone-verify-btn {
+    background: linear-gradient(135deg, var(--blue-500) 0%, var(--blue-600) 100%);
+    color: white;
+}
+
+.phone-verify-btn:hover {
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-700) 100%);
+}
+
+.phone-verify-btn:disabled {
+    background: var(--neutral-300);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.phone-verify-btn:disabled:hover {
+    transform: none;
+    box-shadow: var(--shadow-soft);
+}
+
+/* 취소 버튼 (회색) */
+.phone-cancel-btn {
+    background: linear-gradient(135deg, var(--neutral-500) 0%, var(--neutral-600) 100%);
+    color: white;
+}
+
+.phone-cancel-btn:hover {
+    background: linear-gradient(135deg, var(--neutral-600) 0%, var(--neutral-700) 100%);
+}
+
+/* 인증번호 입력 컨테이너 */
+.verification-input-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: rgba(239, 246, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid var(--blue-200);
+}
+
+.verification-input-container .profile-input {
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+/* 타이머 스타일 */
+.timer {
+    color: var(--blue-600);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--blue-200);
+    white-space: nowrap;
+}
+
+/* 인증완료 텍스트 */
+.verified-text {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    border: 1px solid #10b981;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 현재 번호 표시 */
+.current-phone-display {
+    color: var(--neutral-600);
+    font-weight: 500;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .phone-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .phone-input-row .profile-input {
+        max-width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .verification-input-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .verification-input-container .profile-input {
+        max-width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .phone-button {
+        height: 40px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .timer, .verified-text {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .phone-input-row {
+        gap: 8px;
+    }
+
+    .verification-input-container {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .phone-button {
+        padding: 8px 12px;
+        font-size: 12px;
+        height: 36px;
     }
 }

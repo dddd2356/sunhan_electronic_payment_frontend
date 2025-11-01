@@ -11,6 +11,11 @@ import LeaveApplication from "./views/Detail/LeaveApplication";
 import MyPage from "./views/Detail/MyPage";
 import AdminVacationManagement from "./components/AdminVacationManagement";
 import SyncManagementDashboard from "./components/SyncManagementDashboard";
+import AdminVacationStatistics from "./components/AdminVacationStatistics";
+import ApprovalLineCreator from "./components/MyApprovalLineEditor";
+import MyApprovalLineEditor from "./components/MyApprovalLineEditor";
+import MyApprovalLines from "./components/MyApprovalLines";
+
 
 function App() {
   return (
@@ -21,20 +26,24 @@ function App() {
         <Route path="/detail">
             <Route path="main-page" element={<MainPage/>} />
             <Route path="my-page" element={<MyPage/>}/>
+            <Route path="approval-lines" element={<MyApprovalLines />} />
+            <Route path="approval-lines/new" element={<MyApprovalLineEditor />} />
+            <Route path="approval-lines/:id" element={<MyApprovalLineEditor />} />
             <Route path="employment-contract" element={<EmploymentContractBoard/>} />
             <Route path="employment-contract/view/:id" element={<EmploymentContract/>} />
             <Route path="employment-contract/edit/:id" element={<EmploymentContract/>} />
 
             {/* Leave Application */}
-            <Route path="leave-application" element={<LeaveApplicationBoard />} />          {/* board */}
-            <Route path="leave-application/view/:id" element={<LeaveApplication />} />      {/* view */}
-            <Route path="leave-application/edit/:id" element={<LeaveApplication />} />      {/* edit */}
+            <Route path="leave-application" element={<LeaveApplicationBoard/>} />          {/* board */}
+            <Route path="leave-application/view/:id" element={<LeaveApplication/>} />      {/* view */}
+            <Route path="leave-application/edit/:id" element={<LeaveApplication/>} />      {/* edit */}
         </Route>
           {/* ===== 관리자 페이지 라우트 추가 ===== */}
           <Route path="/admin">
-              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="dashboard" element={<AdminDashboard/>} />
               <Route path="vacation" element={<AdminVacationManagement/>}/>
               <Route path="sync-management-dashboard" element={<SyncManagementDashboard/>}/>
+              <Route path="vacation-statistics" element={<AdminVacationStatistics/>} />
           </Route>
     </Routes>
   );

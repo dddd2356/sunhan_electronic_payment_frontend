@@ -1,0 +1,495 @@
+.approval-line-creator {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.approval-line-creator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.approval-line-creator-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.approval-line-btn-cancel, .approval-line-btn-save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.approval-line-creator-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.approval-line-btn-cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.approval-line-btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.approval-line-btn-save {
+    background: #3b82f6;
+    color: white;
+}
+
+.approval-line-btn-save:hover {
+    background: #2563eb;
+}
+
+.approval-line-creator-content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.approval-line-creator-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.approval-line-creator-section h2 {
+    margin: 0 0 24px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.approval-line-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.approval-line-section-header h2 {
+    margin: 0;
+}
+
+.approval-line-btn-add-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.approval-line-btn-add-step:hover {
+    background: #059669;
+}
+
+.approval-line-form-group {
+    margin-bottom: 20px;
+}
+
+.approval-line-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.approval-line-required {
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+.approval-line-form-group input,
+.approval-line-form-group select,
+.approval-line-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.approval-line-form-group input:focus,
+.approval-line-form-group select:focus,
+.approval-line-form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.approval-line-form-group input.error,
+.approval-line-form-group select.error {
+    border-color: #ef4444;
+}
+
+.approval-line-error-message {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #ef4444;
+}
+
+.approval-line-error-message-box {
+    padding: 12px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #dc2626;
+    margin-bottom: 16px;
+}
+
+.approval-line-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.approval-line-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.approval-line-step-item {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.approval-line-step-item:hover {
+    border-color: #3b82f6;
+}
+
+.approval-line-step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.approval-line-step-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.approval-line-step-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.approval-line-step-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.approval-line-step-actions button:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.approval-line-step-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.approval-line-step-actions button.approval-line-btn-delete {
+    border-color: #fecaca;
+    background: white;
+}
+
+
+.approval-line-step-actions button.approval-line-btn-delete:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.approval-line-step-actions .icon {
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+}
+
+.approval-line-step-actions button.approval-line-btn-delete .icon {
+    color: #dc2626;
+}
+
+.approval-line-step-content {
+    padding: 16px;
+}
+
+.approval-line-user-select-row {
+    display: flex;
+    gap: 12px;
+}
+
+.approval-line-user-select-row input {
+    flex: 1;
+}
+
+.approval-line-btn-select-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.approval-line-btn-select-user:hover {
+    background: #2563eb;
+}
+
+.approval-line-btn-select-user .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.approval-line-info-message {
+    padding: 12px;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    color: #1e40af;
+    font-size: 14px;
+}
+
+.approval-line-step-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin-top: 16px;
+}
+
+.approval-line-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+}
+
+.approval-line-checkbox-label input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+.approval-line-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.approval-line-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.approval-line-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.approval-line-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.approval-line-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+
+.approval-line-modal-close:hover {
+    color: #111827;
+}
+
+.approval-line-modal-close .icon {
+    width: 24px;
+    height: 24px;
+}
+
+.approval-line-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.approval-line-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* 후보 목록 모달 스타일 */
+.candidates-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.candidate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.candidate-item:hover {
+    background-color: #f3f4f6;
+    border-color: #3b82f6;
+}
+
+.candidate-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.candidate-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #111827;
+}
+
+.candidate-details {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.selected-icon {
+    width: 20px;
+    height: 20px;
+    color: #10b981;
+}
+
+.loading-message,
+.empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.approval-line-info-message {
+    padding: 12px;
+    background-color: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    color: #1e40af;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.approval-line-creator-actions .approval-line-btn-delete {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #ef4444;
+    color: white;
+}
+
+.approval-line-creator-actions .approval-line-btn-delete:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.approval-line-creator-actions .approval-line-btn-delete:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.approval-line-btn-cancel:disabled,
+.approval-line-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.approval-line-btn-save:disabled {
+    background: #93c5fd;
+}

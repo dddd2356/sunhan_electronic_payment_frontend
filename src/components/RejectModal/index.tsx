@@ -9,6 +9,7 @@ interface RejectModalProps {
     initialReason?: string;
     isReadOnly?: boolean;
     title?: string;
+    placeholder?: string;
 }
 
 const RejectModal: React.FC<RejectModalProps> = ({
@@ -17,7 +18,8 @@ const RejectModal: React.FC<RejectModalProps> = ({
                                                      onSubmit,
                                                      initialReason = '',
                                                      isReadOnly = false,
-                                                     title = "반려 사유"
+                                                     title = "반려 사유",
+                                                     placeholder = "반려 사유를 입력해주세요..."
                                                  }) => {
     const [reason, setReason] = useState<string>('');
 
@@ -82,7 +84,7 @@ const RejectModal: React.FC<RejectModalProps> = ({
                     <textarea
                         value={reason}
                         onChange={handleTextareaChange}
-                        placeholder={isReadOnly ? "" : "반려 사유를 입력해주세요..."}
+                        placeholder={isReadOnly ? "" : placeholder}
                         rows={6}
                         className="reason-textarea"
                         readOnly={isReadOnly}
@@ -106,7 +108,7 @@ const RejectModal: React.FC<RejectModalProps> = ({
                             className="btn-submit"
                             disabled={!reason.trim()}
                         >
-                            반려하기
+                            {title.includes('취소') ? '취소하기' : '반려하기'}
                         </button>
                     )}
                 </div>

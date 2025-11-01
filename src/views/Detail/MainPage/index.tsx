@@ -19,6 +19,8 @@ interface UserProfile {
     useFlag?: string;
     totalVacationDays?: number;
     usedVacationDays?: number;
+    privacyConsent?: boolean;
+    notificationConsent?: boolean;
 }
 
 interface ContractStatus {
@@ -626,6 +628,8 @@ const MainPage: React.FC = () => {
                     initialPhone={userProfile.phone}
                     initialAddress={userProfile.address}
                     initialDetailAddress={userProfile.detailAddress}
+                    initialPrivacyConsent={userProfile.privacyConsent}
+                    initialNotificationConsent={userProfile.notificationConsent}
                     requirePasswordChange={userProfile.passwordChangeRequired}
                 />
             )}

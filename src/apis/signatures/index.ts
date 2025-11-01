@@ -247,10 +247,13 @@ export async function parseSignaturesFromLeaveApplicationData(
             if (rawSignatures[type] && Array.isArray(rawSignatures[type])) {
                 convertedSignatures[type] = rawSignatures[type].map((sig: any) => ({
                     text: sig.text || '',
-                    imageUrl: sig.imageUrl || undefined, // DB에 저장된 URL 사용
-                    isSigned: !!sig.isSigned, // 백엔드에서 isSigned 필드를 전달한다고 가정
-                    signatureDate: sig.signatureDate ?? undefined
-                }));
+                    imageUrl: sig.imageUrl || undefined,
+                    isSigned: !!sig.isSigned || sig.text === '전결처리!' || !!sig.isFinalApproval || !!sig.isSkipped,  // ← 강제 true**
+                    signatureDate: sig.signatureDate ?? undefined,
+                    signerName: sig.signerName || sig.skippedByName || sig.skippedBy || '',  // ← 처리자 이름**
+                    isFinalApproval: !!sig.isFinalApproval,  // ← 전결 플래그**
+                    isSkipped: !!sig.isSkipped  // ← 건너뛰기 플래그**
+                    }));
             } else {
                 // 해당 타입의 서명 데이터가 없는 경우 기본값 설정
                 convertedSignatures[type] = [defaultSignatureEntry()];

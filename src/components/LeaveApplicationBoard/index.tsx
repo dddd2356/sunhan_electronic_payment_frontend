@@ -79,40 +79,22 @@ const LeaveApplicationBoard: React.FC = () => {
     const itemsPerPage = 10;
 
     const getStatusText = (s: string) => {
-        // 백엔드의 모든 상태(Enum) 값을 처리하도록 변경
         switch (s) {
             case 'DRAFT': return '작성중';
-            case 'PENDING_SUBSTITUTE': return '대직자 승인대기';
-            case 'PENDING_DEPT_HEAD': return '부서장 승인대기';
-            case 'PENDING_HR_STAFF': return '인사팀 승인대기';
-            case 'PENDING_CENTER_DIRECTOR': return '진료센터장 승인대기';
-            case 'PENDING_HR_FINAL': return '최종 인사팀 승인대기';
-            case 'PENDING_ADMIN_DIRECTOR': return '행정원장 승인대기';
-            case 'PENDING_CEO_DIRECTOR': return '대표원장 승인대기';
+            case 'PENDING': return '승인 대기'; // ✅ 통합
             case 'APPROVED': return '최종 승인';
             case 'REJECTED': return '반려됨';
-            case 'COMPLETED': return '완료';
-            default: return s; // 알 수 없는 상태는 코드를 그대로 표시
+            default: return s;
         }
     };
 
+
     const getStatusClass = (status: string) => {
-        // [수정] 백엔드의 모든 상태(Enum) 값을 처리하도록 변경
         switch (status) {
             case 'DRAFT': return 'status-draft';
             case 'REJECTED': return 'status-return';
-            case 'APPROVED':
-            case 'COMPLETED':
-                return 'status-completed';
-            // 모든 PENDING 상태들은 '제출됨'과 동일한 스타일(노란색) 적용
-            case 'PENDING_SUBSTITUTE':
-            case 'PENDING_DEPT_HEAD':
-            case 'PENDING_HR_STAFF':
-            case 'PENDING_CENTER_DIRECTOR':
-            case 'PENDING_HR_FINAL':
-            case 'PENDING_ADMIN_DIRECTOR':
-            case 'PENDING_CEO_DIRECTOR':
-                return 'status-sent';
+            case 'APPROVED': return 'status-completed';
+            case 'PENDING': return 'status-sent'; // ✅ 통합
             default: return '';
         }
     };

@@ -475,7 +475,6 @@
     border-color: #e6861a;
 }
 
-
 /* 전결 처리된 승인 테이블 행 스타일 */
 .approval-table tr.final-approved td {
     background-color: #fff5f5;
@@ -546,7 +545,7 @@
         border-color: #1e7e34 !important;
     }
 
-    .btn-list, .btn-save, .btn-send, .btn-delete, .btn-approve, .btn-reject {
+    .btn-list, .btn-save, .btn-send, .btn-delete, .btn-approve, .btn-reject, .btn-cancel-approved {
         padding: 8px 12px;
         font-size: 13px;
     }

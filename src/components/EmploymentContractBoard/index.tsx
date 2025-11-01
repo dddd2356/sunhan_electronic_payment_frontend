@@ -133,7 +133,7 @@ const EmploymentContractBoard: React.FC = () => {
     const isAdminByLevel = (user: any) => {
         if (!user) return false;
         const level = Number(user.jobLevel);
-        return level >= 2 || ((level === 0 || level ===1) && user.permissions?.includes('HR_CONTRACT'));
+        return (currentUser.role === 'ADMIN' && currentUser.jobLevel && parseInt(currentUser.jobLevel) === 6) || level >= 2 || ((level === 0 || level ===1) && user.permissions?.includes('HR_CONTRACT'));
     };
     // 현재 사용자 정보 가져오기
     useEffect(() => {

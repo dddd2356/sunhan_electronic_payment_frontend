@@ -3,6 +3,7 @@ import {useCookies} from 'react-cookie';
 import Layout from '../../../components/Layout';
 import SignatureCanvas from 'react-signature-canvas';
 import './style.css';
+import NotificationPolicy from "../../../components/NotificationPolicy";
 
 interface User {
     id?: string;
@@ -18,12 +19,8 @@ interface User {
     signatureUrl?: string | null;
     signimage?: string | null;  // base64 이미지 문자열
     signpath?: string | null;   // 이미지 경로 URL
-}
-
-declare global {
-    interface Window {
-        daum: any;
-    }
+    privacyConsent?: boolean;
+    notificationConsent?: boolean;
 }
 
 const MyPage: React.FC = () => {
@@ -41,11 +38,36 @@ const MyPage: React.FC = () => {
         currentPassword: '',
         newPassword: '',
         confirmNewPassword: '',
+        privacyConsent: false,
+        notificationConsent: false
     });
 
+    // 전화번호 인증 관련 state
+    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [serverCode, setServerCode] = useState('');
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [editingPhone, setEditingPhone] = useState(false);
+    const [isCodeSent, setIsCodeSent] = useState(false);
+    const [timer, setTimer] = useState(0);
+
+    // 마케팅 정책 모달 상태 추가
+    const [showNotificationPolicyModal, setShowNotificationPolicyModal] = useState(false); // ✅ 상태 변수 이름을 변경합니다.
     const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [sigError, setSigError] = useState('');
     const sigCanvas = useRef<SignatureCanvas>(null);
+
+    const formatPhoneNumber = (value: string) => {
+        const digits = value.replace(/\D/g, '');
+        if (digits.length <= 3) return digits;
+        if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+        return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    };
+
+    const isPhoneValid = (phone: string) => {
+        const digits = phone.replace(/\D/g, '');
+        return /^010\d{8}$/.test(digits);
+    };
 
     const getPositionByJobLevel = (jobLevel: string | number | undefined): string => {
         const level = String(jobLevel);
@@ -66,6 +88,25 @@ const MyPage: React.FC = () => {
                 return '';
         }
     };
+
+    // 분:초 형태로 변환
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+    };
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | null = null;
+        if (isCodeSent && timer > 0) {
+            interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isCodeSent, timer]);
 
     useEffect(() => {
         fetchMyProfile();
@@ -98,6 +139,8 @@ const MyPage: React.FC = () => {
                 signatureUrl: data.signatureUrl || '',
                 signimage: data.signimage || null, // 서버 응답의 signimage 필드 사용
                 signpath: data.signpath || null,   // 서버 응답의 signpath 필드 사용
+                privacyConsent: data.privacyConsent ?? false,
+                notificationConsent: data.notificationConsent ?? false,
             };
             setUser(userData);
             setFormData(prev => ({
@@ -105,7 +148,9 @@ const MyPage: React.FC = () => {
                 userName: userData.userName || '',
                 phone: userData.phone || '',
                 address: userData.address || '',
-                detailAddress: userData.detailAddress || ''
+                detailAddress: userData.detailAddress || '',
+                privacyConsent: userData.privacyConsent ?? false,
+                notificationConsent: userData.notificationConsent ?? false,
             }));
         } catch (e: any) {
             setError(e.message || '프로필 로드 실패');
@@ -133,9 +178,128 @@ const MyPage: React.FC = () => {
         }).open();
     };
 
+    // 인증번호 요청
+    const handleSendVerificationCode = async () => {
+        const phoneDigits = formData.phone.replace(/\D/g, '');
+
+        if (!phoneDigits) {
+            alert('전화번호를 입력하세요.');
+            return;
+        }
+
+        if (!isPhoneValid(formData.phone)) {
+            alert('올바른 휴대폰 번호 형식을 입력해주세요. (010-XXXX-XXXX)');
+            return;
+        }
+
+        // 기존 번호와 동일한 경우 체크
+        const originalPhoneDigits = user?.phone?.replace(/\D/g, '') || '';
+        if (phoneDigits === originalPhoneDigits) {
+            alert('현재 등록된 번호와 동일합니다.');
+            return;
+        }
+
+        try {
+            setIsVerifying(true);
+            const res = await fetch('/api/v1/auth/send-sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phoneDigits }), // 숫자만 전송
+                credentials: 'include'
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || '인증번호 발송 실패');
+            }
+            const data = await res.json();
+            setServerCode(data.code);
+            setIsCodeSent(true);
+            setTimer(300);
+            alert('인증번호가 발송되었습니다.');
+        } catch (e: any) {
+            alert(e.message);
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const handleVerifyCode = async () => {
+        const code = verificationCode.replace(/\D/g, '');
+
+        if (!code || code.length !== 6) {
+            alert('6자리 인증번호를 정확히 입력해주세요.');
+            return;
+        }
+
+        if (timer <= 0) {
+            alert('인증 시간이 만료되었습니다. 다시 요청해주세요.');
+            return;
+        }
+
+        try {
+            setIsVerifying(true);
+            const response = await fetch('/api/v1/auth/verify-sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    phone: formData.phone.replace(/\D/g, ''),
+                    code: code
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '인증번호가 일치하지 않습니다.');
+            }
+
+            setIsPhoneVerified(true);
+            setTimer(0);
+            setIsCodeSent(false);
+            setVerificationCode('');
+            setEditingPhone(false);
+            alert('전화번호 인증이 완료되었습니다.');
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const handleCancelPhoneEdit = () => {
+        setFormData(prev => ({...prev, phone: user?.phone || ''}));
+        setEditingPhone(false);
+        setIsCodeSent(false);
+        setVerificationCode('');
+        setIsPhoneVerified(true);
+        setTimer(0);
+        setIsVerifying(false);
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
-        setFormData(prev => ({...prev, [name]: value}));
+
+        if (name === 'phone') {
+            const formatted = formatPhoneNumber(value);
+            setFormData(prev => ({...prev, [name]: formatted}));
+
+            // 전화번호가 변경되면 인증 상태 리셋
+            const originalPhoneDigits = user?.phone?.replace(/\D/g, '') || '';
+            const newPhoneDigits = formatted.replace(/\D/g, '');
+
+            if (newPhoneDigits !== originalPhoneDigits) {
+                setIsPhoneVerified(false);
+                setIsCodeSent(false);
+                setVerificationCode('');
+                setTimer(0);
+            } else if (newPhoneDigits === originalPhoneDigits && originalPhoneDigits) {
+                setIsPhoneVerified(true);
+            }
+        } else if (name === 'notificationConsent') {
+            setFormData(prev => ({...prev, [name]: e.target.checked}));
+        } else {
+            setFormData(prev => ({...prev, [name]: value}));
+        }
     };
 
     const handleSave = async () => {
@@ -148,12 +312,20 @@ const MyPage: React.FC = () => {
             return;
         }
 
+        // 📌 번호가 변경되었는데 인증이 안 됐으면 저장 불가
+        if (formData.phone !== user?.phone && !isPhoneVerified) {
+            alert('휴대폰 번호 인증을 완료해주세요.');
+            return;
+        }
+
         try {
             const body: any = {
                 userName: formData.userName,
                 phone: formData.phone,
                 address: formData.address,
-                detailAddress: formData.detailAddress
+                detailAddress: formData.detailAddress,
+                privacyConsent: formData.privacyConsent,
+                notificationConsent: formData.notificationConsent
             };
             if (formData.newPassword) {
                 body.currentPassword = formData.currentPassword;
@@ -239,16 +411,7 @@ const MyPage: React.FC = () => {
                             <div className="profile-field">
                                 <div className="field-label">이름</div>
                                 <div className="field-value">
-                                    {isEditMode ? (
-                                        <input
-                                            className="profile-input"
-                                            name="userName"
-                                            value={formData.userName}
-                                            onChange={handleChange}
-                                        />
-                                    ) : (
-                                        user.userName || '-'
-                                    )}
+                                    {user.userName || '-'}
                                 </div>
                             </div>
 
@@ -261,12 +424,78 @@ const MyPage: React.FC = () => {
                                 <div className="field-label">핸드폰</div>
                                 <div className="field-value">
                                     {isEditMode ? (
-                                        <input
-                                            className="profile-input"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                        />
+                                        <div className="phone-edit-container">
+                                            {!editingPhone ? (
+                                                <div className="current-phone-display">
+                                                    <span>{formData.phone || '-'}</span>
+                                                    <button
+                                                        type="button"
+                                                        className="phone-button phone-change-btn"
+                                                        onClick={() => setEditingPhone(true)}
+                                                    >
+                                                        번호변경
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {/* 전화번호 입력 및 버튼이 한 줄에 */}
+                                                    <div className="phone-input-row">
+                                                        <input
+                                                            className="profile-input"
+                                                            name="phone"
+                                                            value={formData.phone}
+                                                            onChange={handleChange}
+                                                            placeholder="새 전화번호 입력 (010-0000-0000)"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="phone-button phone-verify-btn"
+                                                            onClick={handleSendVerificationCode}
+                                                            disabled={isVerifying || timer > 0}
+                                                        >
+                                                            {isVerifying ? '발송중...' : isCodeSent ? `재발송${timer > 0 ? ` (${formatTime(timer)})` : ''}` : '인증번호 발송'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="phone-button phone-cancel-btn"
+                                                            onClick={handleCancelPhoneEdit}
+                                                        >
+                                                            취소
+                                                        </button>
+                                                    </div>
+
+                                                    {/* 인증번호 입력 (코드가 발송되었을 때만 표시) */}
+                                                    {isCodeSent && !isPhoneVerified && (
+                                                        <div className="verification-input-container">
+                                                            <input
+                                                                className="profile-input"
+                                                                value={verificationCode}
+                                                                onChange={(e) => setVerificationCode(e.target.value)}
+                                                                placeholder="인증번호 6자리"
+                                                                maxLength={6}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="phone-button phone-verify-btn"
+                                                                onClick={handleVerifyCode}
+                                                                disabled={isVerifying}
+                                                            >
+                                                                {isVerifying ? '확인중...' : '인증확인'}
+                                                            </button>
+                                                            {timer > 0 && (
+                                                                <span
+                                                                    className="timer">남은 시간: {formatTime(timer)}</span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* 인증완료 표시 */}
+                                                    {isPhoneVerified && formData.phone !== user?.phone && (
+                                                        <span className="verified-text">✓ 인증완료</span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     ) : (
                                         user.phone || '-'
                                     )}
@@ -411,6 +640,39 @@ const MyPage: React.FC = () => {
                                     </div>
                                 </>
                             )}
+
+                            {/* 마케팅 수신동의 필드 추가 */}
+                            <div className="profile-field marketing-consent-field">
+                                <div className="field-label">문서 알림 수신동의</div>
+                                <div className="field-value">
+                                    {isEditMode ? (
+                                        <div className="marketing-consent-container">
+                                            <label className="marketing-consent-label">
+                                                <input
+                                                    type="checkbox"
+                                                    name="notificationConsent"
+                                                    checked={formData.notificationConsent}
+                                                    onChange={handleChange}
+                                                    className="marketing-consent-checkbox"
+                                                />
+                                                <span>SMS/알림톡을 통한 문서 알림 수신에 동의합니다.</span>
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNotificationPolicyModal(true)}
+                                                className="marketing-policy-btn"
+                                            >
+                                                자세히 보기
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <span
+                                            className={`marketing-status ${user.notificationConsent ? 'agreed' : 'declined'}`}>
+                                            {user.notificationConsent ? '✓ 수신동의' : '✗ 수신거부'}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -448,6 +710,26 @@ const MyPage: React.FC = () => {
                             <button className="cancel-button" onClick={() => setShowSignatureModal(false)}>
                                 취소
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 마케팅 정책 모달 */}
+            {showNotificationPolicyModal && (
+                <div className="policy-modal-overlay">
+                    <div className="policy-modal-content">
+                        <div className="policy-modal-header">
+                            <button
+                                type="button"
+                                onClick={() => setShowNotificationPolicyModal(false)}
+                                className="policy-modal-close-btn"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="policy-modal-body">
+                            <NotificationPolicy />
                         </div>
                     </div>
                 </div>

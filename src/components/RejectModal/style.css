@@ -149,7 +149,7 @@
     font-weight: 500;
 }
 
-.btn-save, .btn-send, .btn-approve, .btn-print, .btn-list, .btn-view-reason, .btn-delete {
+.btn-save, .btn-send, .btn-approve, .btn-print, .btn-list, .btn-view-reason, .btn-delete, .btn-cancel-approved {
     border: none;
     padding: 12px 24px;
     border-radius: 8px;

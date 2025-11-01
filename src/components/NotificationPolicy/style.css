@@ -1,0 +1,190 @@
+/* src/components/MarketingPolicy.css */
+.marketing-container {
+    font-family: 'Malgun Gothic', Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.marketing-header {
+    text-align: center;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.marketing-header h1 {
+    color: #28a745;
+    margin-bottom: 10px;
+    font-size: 2em;
+}
+
+.marketing-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #28a745;
+    border-radius: 0 5px 5px 0;
+}
+
+.marketing-section h2 {
+    color: #28a745;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.marketing-section h3 {
+    color: #28a745;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.marketing-section ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.marketing-section li {
+    margin-bottom: 8px;
+}
+
+.marketing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.marketing-table th,
+.marketing-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.marketing-table th {
+    background: #28a745;
+    color: white;
+    font-weight: bold;
+}
+
+.marketing-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.marketing-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.marketing-highlight {
+    background: #d1edff;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border-left: 3px solid #007bff;
+}
+
+.marketing-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border-left: 3px solid #ffc107;
+}
+
+.marketing-contact-info {
+    background: #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.marketing-contact-info h2 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.marketing-contact-info p {
+    margin: 5px 0;
+}
+
+.marketing-footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #666;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.marketing-benefit-box {
+    background: linear-gradient(135deg, var(--blue-500) 0%, var(--clean-400) 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.marketing-benefit-box h3 {
+    margin-top: 0;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.marketing-benefit-box ul {
+    margin: 15px 0 0 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.marketing-benefit-box li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.marketing-benefit-box li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .marketing-container {
+        padding: 10px;
+    }
+
+    .marketing-header h1 {
+        font-size: 1.5em;
+    }
+
+    .marketing-section {
+        padding: 10px;
+    }
+
+    .marketing-table {
+        font-size: 0.9em;
+    }
+
+    .marketing-table th,
+    .marketing-table td {
+        padding: 8px;
+    }
+
+    .marketing-benefit-box {
+        padding: 15px;
+    }
+
+    .marketing-benefit-box h3 {
+        font-size: 1.1em;
+    }
+}

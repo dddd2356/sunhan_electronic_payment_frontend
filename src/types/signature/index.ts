@@ -3,6 +3,9 @@ export interface SignatureData {
     imageUrl?: string;
     isSigned: boolean;
     signatureDate?: string;
+    isSkipped?: boolean;
+    signerName?: string;
+    isFinalApproval?: boolean;
 }
 
 export interface SignatureState {

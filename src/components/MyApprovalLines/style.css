@@ -1,0 +1,212 @@
+.my-approval-lines {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.my-approval-lines .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    background: white;
+    border: 2px dashed #e5e7eb;
+    border-radius: 16px;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.my-approval-lines .empty .actions {
+    margin-top: 24px;
+}
+
+.my-approval-lines .list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.my-approval-lines .approval-lines-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.my-approval-lines .approval-lines-header h1 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.my-approval-lines .approval-lines-header .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.my-approval-lines .approval-lines-header .btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.my-approval-lines .approval-lines-header .btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.my-approval-lines .empty .actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.my-approval-lines .empty .actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.my-approval-lines .line-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s;
+}
+
+.my-approval-lines .line-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.my-approval-lines .line-left {
+    flex: 1;
+}
+
+.my-approval-lines .line-left h3 {
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.my-approval-lines .badge {
+    display: inline-flex;
+    align-items: center;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.my-approval-lines .desc {
+    margin: 0 0 12px 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.my-approval-lines .meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.my-approval-lines .line-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.my-approval-lines .line-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+
+.my-approval-lines .line-actions button:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    transform: scale(1.05);
+}
+
+.my-approval-lines .line-actions button:active {
+    transform: scale(0.95);
+}
+
+.my-approval-lines .line-actions button svg {
+    width: 18px;
+    height: 18px;
+}
+
+.my-approval-lines .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .my-approval-lines {
+        padding: 20px 16px;
+    }
+
+    .my-approval-lines .line-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .my-approval-lines .line-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

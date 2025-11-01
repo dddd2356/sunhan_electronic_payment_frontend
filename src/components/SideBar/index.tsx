@@ -125,7 +125,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             navigate("/");
         }
     };
-    const canViewVacationAdmin = isAdmin && (((jobLevel == 0 || jobLevel == 1)&& permissions.includes('HR_LEAVE_APPLICATION')) || jobLevel >= 2);
+
+    //휴가원 관리할 수 있는 사람(휴가원 권한이 있는 사람, 관리자)
+    const canViewVacationAdmin = (((jobLevel == 0 || jobLevel == 1) && permissions.includes('HR_LEAVE_APPLICATION')) || jobLevel == 6);
 
     const handleMypage = () => navigate("/detail/my-page");
     return (
@@ -151,6 +153,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="menu-title cursor-pointer">근로계약서
                 </li>
                 <li onClick={() => navigate('/detail/leave-application')} className="menu-title cursor-pointer">휴가원</li>
+                <li
+                    onClick={() => navigate('/detail/approval-lines')}
+                    className="menu-title cursor-pointer font-bold text-purple-600"
+                >
+                    결재라인 관리
+                </li>
                 {/* ===== isAdmin 상태가 true일 때만 관리자 페이지 메뉴를 렌더링 ===== */}
                 {isAdmin && jobLevel >= 1 && (
                     <li onClick={() => navigate('/admin/dashboard')}
@@ -165,7 +173,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         휴가원 관리자 페이지
                     </li>
                 )}
-                {isAdmin  && (
+                {canViewVacationAdmin && (
+                    <li onClick={() => navigate('/admin/vacation-statistics')}
+                        className="menu-title cursor-pointer font-bold text-purple-600">
+                        휴가원 통계 페이지
+                    </li>
+                )}
+                {isAdmin && (
                     <li onClick={() => navigate('/admin/sync-management-dashboard')}
                         className="menu-title cursor-pointer font-bold text-purple-600">
                         동기화 페이지
