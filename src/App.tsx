@@ -15,6 +15,9 @@ import AdminVacationStatistics from "./components/AdminVacationStatistics";
 import ApprovalLineCreator from "./components/MyApprovalLineEditor";
 import MyApprovalLineEditor from "./components/MyApprovalLineEditor";
 import MyApprovalLines from "./components/MyApprovalLines";
+import WorkScheduleBoard from "./components/WorkScheduleBoard";
+import WorkScheduleEditor from "./components/WorkScheduleEditor";
+import PositionManagement from "./components/PositionManagement";
 
 
 function App() {
@@ -37,6 +40,14 @@ function App() {
             <Route path="leave-application" element={<LeaveApplicationBoard/>} />          {/* board */}
             <Route path="leave-application/view/:id" element={<LeaveApplication/>} />      {/* view */}
             <Route path="leave-application/edit/:id" element={<LeaveApplication/>} />      {/* edit */}
+
+            {/* ✅ 근무현황표 라우트 추가 */}
+            <Route path="work-schedule" element={<WorkScheduleBoard/>} />
+            <Route path="work-schedule/view/:id" element={<WorkScheduleEditor/>} />
+            <Route path="work-schedule/edit/:id" element={<WorkScheduleEditor/>} />
+
+            {/* ✅ 직책 관리 라우트 */}
+            <Route path="positions" element={<PositionManagement/>} />
         </Route>
           {/* ===== 관리자 페이지 라우트 추가 ===== */}
           <Route path="/admin">
@@ -45,6 +56,7 @@ function App() {
               <Route path="sync-management-dashboard" element={<SyncManagementDashboard/>}/>
               <Route path="vacation-statistics" element={<AdminVacationStatistics/>} />
           </Route>
+
     </Routes>
   );
 }

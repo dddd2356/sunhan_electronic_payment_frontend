@@ -1,0 +1,270 @@
+.position-management {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.pm-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #333;
+}
+
+.pm-page-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.pm-header-info {
+    font-size: 16px;
+    color: #666;
+}
+
+.pm-position-actions {
+    margin: 20px 0;
+}
+
+.pm-btn-create {
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.pm-btn-create:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pm-position-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.pm-position-table thead {
+    background-color: #f5f5f5;
+}
+
+.pm-position-table th,
+.pm-position-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.pm-position-table th {
+    font-weight: 600;
+    color: #333;
+}
+
+.pm-position-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.pm-order-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.pm-btn-order {
+    padding: 4px 8px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.pm-btn-order:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.pm-btn-order:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pm-position-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.pm-status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pm-status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.pm-status-badge.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.pm-action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.pm-btn-edit,
+.pm-btn-delete {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.pm-btn-edit {
+    background-color: #2196F3;
+    color: white;
+}
+
+.pm-btn-edit:hover {
+    background-color: #1976D2;
+}
+
+.pm-btn-delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.pm-btn-delete:hover {
+    background-color: #d32f2f;
+}
+
+.pm-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 모달 */
+.pm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.pm-modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    min-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.pm-modal-content h2 {
+    margin-bottom: 24px;
+    font-size: 22px;
+    color: #333;
+}
+
+.pm-form-group {
+    margin-bottom: 20px;
+}
+
+.pm-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.pm-form-group small {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 12px;
+}
+
+.pm-form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.pm-form-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.pm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.pm-btn-cancel,
+.pm-btn-confirm {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.pm-btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.pm-btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.pm-btn-confirm {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.pm-btn-confirm:hover {
+    background-color: #45a049;
+}
+
+.pm-loading,
+.pm-error {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+}
+
+.pm-error {
+    color: #d32f2f;
+}

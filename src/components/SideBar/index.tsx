@@ -153,12 +153,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="menu-title cursor-pointer">근로계약서
                 </li>
                 <li onClick={() => navigate('/detail/leave-application')} className="menu-title cursor-pointer">휴가원</li>
+                <li onClick={() => navigate('/detail/work-schedule')}
+                    className="menu-title cursor-pointer">
+                    근무현황표
+                </li>
                 <li
                     onClick={() => navigate('/detail/approval-lines')}
                     className="menu-title cursor-pointer font-bold text-purple-600"
                 >
                     결재라인 관리
                 </li>
+                {/* 부서장 이상만 */}
+                {/*{isAdmin && jobLevel >= 1 && (*/}
+                    <li onClick={() => navigate('/detail/positions')}
+                        className="menu-title cursor-pointer">
+                        직책 관리
+                    </li>
+                {/*)}*/}
                 {/* ===== isAdmin 상태가 true일 때만 관리자 페이지 메뉴를 렌더링 ===== */}
                 {isAdmin && jobLevel >= 1 && (
                     <li onClick={() => navigate('/admin/dashboard')}

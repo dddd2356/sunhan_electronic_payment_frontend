@@ -54,6 +54,7 @@ enum Tab {
 const PERMISSION_DISPLAY_MAP: Record<string, string> = {
     'HR_LEAVE_APPLICATION': '휴가원 관리',
     'HR_CONTRACT': '근로계약서 관리',
+    'WORK_SCHEDULE_MANAGE': '근무현황표 관리',
     // 필요하면 여기에 다른 타입 추가
 };
 
@@ -167,11 +168,12 @@ export const AdminDashboard: React.FC = () => {
 
             const data = await res.json();
             const hrPermissions = data.permissionTypes
-                .filter((type: string) => type.startsWith('HR_'))
+                .filter((type: string) => type.startsWith('HR_')  || type === 'WORK_SCHEDULE_MANAGE' )
                 .map((type: string) => ({
                     name: type,
                     displayName: type === 'HR_LEAVE_APPLICATION' ? '휴가원 관리' :
-                        type === 'HR_CONTRACT' ? '근로계약서 관리' : type
+                        type === 'HR_CONTRACT' ? '근로계약서 관리' :
+                        type === 'WORK_SCHEDULE_MANAGE' ? '근무현황표 관리' : type
                 }));
 
             setPermissionTypes(hrPermissions);
@@ -183,7 +185,7 @@ export const AdminDashboard: React.FC = () => {
     const fetchUserPermissions = useCallback(async () => {
         try {
             setHrPermissionLoading(true);
-            const hrTypes = ['HR_CONTRACT', 'HR_LEAVE_APPLICATION'];
+            const hrTypes = ['HR_CONTRACT', 'HR_LEAVE_APPLICATION', 'WORK_SCHEDULE_MANAGE'];
             const userPermissionMap = new Map<string, string[]>();
 
             for (const type of hrTypes) {
@@ -219,7 +221,7 @@ export const AdminDashboard: React.FC = () => {
 
     const fetchDeptPermissions = useCallback(async () => {
         try {
-            const hrTypes = ['HR_CONTRACT', 'HR_LEAVE_APPLICATION'];
+            const hrTypes = ['HR_CONTRACT', 'HR_LEAVE_APPLICATION', 'WORK_SCHEDULE_MANAGE'];
             const deptPermissionMap = new Map<string, string[]>();
 
             for (const type of hrTypes) {
@@ -687,7 +689,7 @@ export const AdminDashboard: React.FC = () => {
                                     required
                                 >
                                     <option value="">사용자 선택</option>
-                                    {users.filter(user => user.role === 'ADMIN').map(user => (
+                                    {users.map(user => (
                                         <option key={user.userId} value={user.userId}>
                                             {user.userName} ({user.userId})
                                         </option>

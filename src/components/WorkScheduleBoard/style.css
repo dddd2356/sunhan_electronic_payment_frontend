@@ -1,0 +1,182 @@
+.work-schedule-board {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.wsb-board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.wsb-board-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.wsb-create-button {
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.wsb-create-button:hover {
+    background-color: #45a049;
+}
+
+.wsb-schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.wsb-schedule-table thead {
+    background-color: #f5f5f5;
+}
+
+.wsb-schedule-table th,
+.wsb-schedule-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.wsb-schedule-table th {
+    font-weight: 600;
+    color: #333;
+}
+
+.wsb-schedule-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.wsb-schedule-row:hover {
+    background-color: #f9f9f9;
+}
+
+.wsb-schedule-month {
+    font-weight: bold;
+    color: #333;
+}
+
+.wsb-schedule-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.wsb-schedule-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.wsb-status-draft { background-color: #f0f0f0; color: #666; }
+.wsb-status-submitted { background-color: #fff3cd; color: #856404; }
+.wsb-status-reviewed { background-color: #d1ecf1; color: #0c5460; }
+.wsb-status-approved { background-color: #d4edda; color: #155724; }
+.wsb-status-rejected { background-color: #f8d7da; color: #721c24; }
+
+.wsb-schedule-date {
+    font-size: 14px;
+    color: #888;
+}
+
+.wsb-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+/* 모달 스타일 */
+.wsb-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.wsb-modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    min-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.wsb-modal-content h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.wsb-form-group {
+    margin-bottom: 20px;
+}
+
+.wsb-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.wsb-form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.wsb-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.wsb-btn-cancel, .wsb-btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.wsb-btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.wsb-btn-confirm {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.wsb-loading, .wsb-error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+}
+
+.wsb-error {
+    color: #d32f2f;
+}

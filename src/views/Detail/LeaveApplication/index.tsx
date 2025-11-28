@@ -314,7 +314,7 @@ const LeaveApplication = () => {
     const fetchApprovalLines = async () => {
         try {
             const response = await fetch(
-                '/api/v1/approval-lines?documentType=LEAVE_APPLICATION',
+                '/api/v1/approval-lines/my?documentType=LEAVE_APPLICATION',
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }

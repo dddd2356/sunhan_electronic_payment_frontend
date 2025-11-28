@@ -1,0 +1,389 @@
+.work-schedule-editor {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 헤더 */
+.wse-schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #333;
+}
+
+.wse-header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wse-header-logo img {
+    width: 40px;
+    height: 40px;
+}
+
+.wse-header-logo span {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.wse-schedule-title {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.wse-header-info {
+    font-size: 16px;
+}
+
+/* 결재란 */
+.wse-approval-section {
+    margin: 20px 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wse-approval-table {
+    border-collapse: collapse;
+    border: 2px solid #333;
+}
+
+.wse-approval-table th,
+.wse-approval-table td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.wse-approval-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.wse-signature-cell {
+    height: 60px;
+    position: relative;
+}
+
+.wse-signature-cell img {
+    max-width: 80px;
+    max-height: 50px;
+}
+
+.wse-date-cell {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 근무 타입 버튼 */
+.wse-work-type-buttons {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    padding: 15px;
+    margin: 20px 0;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.wse-btn-work-type {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s;
+}
+
+
+.wse-btn-work-type:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.wse-btn-d { background-color: #2196F3; }
+.wse-btn-n { background-color: #9C27B0; }
+.wse-btn-e { background-color: #FF9800; }
+.wse-btn-off { background-color: #4CAF50; }
+.wse-btn-leave { background-color: #F44336; }
+.wse-btn-clear { background-color: #9E9E9E; }
+
+.wse-selected-count {
+    margin-left: auto;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* 근무표 테이블 */
+.wse-schedule-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.wse-schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #333;
+    font-size: 14px;
+}
+
+.wse-schedule-table th,
+.wse-schedule-table td {
+    border: 1px solid #999;
+    padding: 8px;
+    text-align: center;
+}
+
+.wse-schedule-table thead th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.wse-day-header {
+    min-width: 35px;
+    font-size: 12px;
+}
+
+/* 근무 셀 */
+.wse-work-cell {
+    min-width: 35px;
+    height: 35px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    font-weight: bold;
+}
+
+.wse-work-cell:hover {
+    background-color: #e3f2fd;
+}
+
+.wse-work-cell.selected {
+    background-color: #4CAF50 !important;
+    color: white;
+}
+
+.wse-work-cell.d {
+    background-color: #bbdefb;
+    color: #0d47a1;
+}
+
+.wse-work-cell.n {
+    background-color: #e1bee7;
+    color: #4a148c;
+}
+
+.wse-work-cell.e {
+    background-color: #ffe0b2;
+    color: #e65100;
+}
+
+.wse-work-cell.off {
+    background-color: #c8e6c9;
+    color: #1b5e20;
+}
+
+.wse-work-cell.연 {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+}
+
+/* 입력 필드 */
+.wse-number-input,
+.wse-remarks-input {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.wse-number-input {
+    max-width: 60px;
+}
+
+/* 하단 비고 */
+.wse-bottom-remarks {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.wse-bottom-remarks label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.wse-remarks-textarea {
+    width: 99%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 18px;
+    resize: vertical;
+}
+
+.wse-remarks-display {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    min-height: 60px;
+}
+
+/* 버튼 */
+.wse-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.wse-action-buttons button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.wse-btn-list {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.wse-btn-submit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.wse-btn-approve {
+    background-color: #2196F3;
+    color: white;
+}
+
+.wse-btn-reject {
+    background-color: #f44336;
+    color: white;
+}
+
+.wse-btn-print {
+    background-color: #FF9800;
+    color: white;
+}
+
+.wse-action-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 로딩 & 에러 */
+.wse-loading,
+.wse-error {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+}
+
+.wse-error {
+    color: #d32f2f;
+}
+
+.wse-day-header {
+    border-bottom: 1px solid #ddd;
+}
+
+.wse-day-number {
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.wse-day-of-week {
+    padding-top: 4px;
+    font-size: 0.85em;
+    color: #666;
+}
+/* 직책 선택 박스 스타일 */
+.wse-position-select {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    font-size: 14px; /* 글자 크기 키움 */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* 텍스트 모드 입력창 스타일 */
+.wse-long-text-input {
+    width: 100%;
+    height: 40px;
+    border: none;
+    background-color: #f9f9f9;
+    text-align: center;
+    font-size: 14px;
+    outline: none;
+}
+.wse-long-text-input:focus {
+    background-color: #eef;
+}
+
+/* 주말/공휴일 헤더 스타일 */
+.wse-day-header.weekend-holiday {
+    background-color: #ffe0e0 !important;
+}
+
+.wse-day-header.weekend-holiday .wse-day-of-week {
+    color: #ff4444;
+    font-weight: bold;
+}
+
+/* 주말/공휴일 셀 배경 */
+.wse-work-cell.weekend-holiday {
+    background-color: #f8f8f8 !important;
+}
+
+/* 선택된 셀의 주말/공휴일 표시 유지 */
+.wse-work-cell.selected.weekend-holiday {
+    background-color: #e3f2fd !important;
+    border: 2px solid #2196F3;
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+    .wse-schedule-table {
+        font-size: 12px;
+    }
+
+    .wse-work-cell,
+    .wse-day-header {
+        min-width: 30px;
+        height: 30px;
+        font-size: 11px;
+    }
+}
