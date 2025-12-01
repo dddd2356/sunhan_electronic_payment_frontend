@@ -374,6 +374,23 @@
     border: 2px solid #2196F3;
 }
 
+/* 반려 사유 확인 버튼 스타일만 유지 */
+.wse-btn-view-reason {
+    padding: 10px 20px;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.wse-btn-view-reason:hover {
+    background-color: #b91c1c;
+}
+
+
 /* 반응형 */
 @media (max-width: 1200px) {
     .wse-schedule-table {

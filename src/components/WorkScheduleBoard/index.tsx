@@ -20,7 +20,7 @@ const WorkScheduleBoard: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const itemsPerPage = 10;
-
+    const [viewRejectReasonModalOpen, setViewRejectReasonModalOpen] = useState(false);
     useEffect(() => {
         checkPermissions();
         loadSchedules();

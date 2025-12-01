@@ -2,6 +2,21 @@ import axios from 'axios';
 
 const API_BASE = '/api/v1/work-schedules';
 
+export interface ApprovalStepInfo {
+    stepOrder: number;
+    stepName: string;
+    name: string;
+    approverId?: string;
+    signatureUrl?: string;
+    signedAt?: string;
+    isCurrent: boolean;
+    isSigned: boolean;
+    isRejected?: boolean;
+    rejectionReason?: string;
+    rejectedAt?: string;
+    rejectedBy?: string;
+}
+
 export interface WorkSchedule {
     id: number;
     deptCode: string;
@@ -15,21 +30,13 @@ export interface WorkSchedule {
     isPrintable: boolean;
     createdAt: string;
     updatedAt: string;
-    creatorSignatureUrl?: string;
-    creatorSignedAt?: string;
+    creatorSignatureUrl?: string | null;
+    creatorSignedAt?: string | null;
     reviewerSignatureUrl?: string;
     reviewerSignedAt?: string;
     approverSignatureUrl?: string;
     approverSignedAt?: string;
-    approvalSteps?: Array<{
-        stepName?: string;
-        name?: string;
-        approverId?: string | string[]; // 단일 또는 복수 가능성 고려
-        signatureUrl?: string;
-        signedAt?: string;
-        isCurrent?: boolean;
-        isSigned?: boolean;
-    }>;
+    approvalSteps?: ApprovalStepInfo[];
 }
 
 export interface WorkScheduleEntry {
@@ -57,15 +64,7 @@ export interface WorkScheduleDetail {
     users: Record<string, any>;
     yearMonth: string;
     daysInMonth: number;
-    approvalSteps?: Array<{  // ✅ 추가
-        stepName: string;
-        name: string;
-        approverId?: string;
-        signatureUrl?: string;
-        signedAt?: string;
-        isCurrent: boolean;
-        isSigned: boolean;
-    }>;
+    approvalSteps?: ApprovalStepInfo[];
 }
 
 /**

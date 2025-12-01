@@ -10,12 +10,13 @@ import {
     reviewWorkSchedule,
     approveWorkSchedule,
     WorkScheduleDetail,
-    WorkScheduleEntry
+    WorkScheduleEntry, ApprovalStepInfo
 } from '../../apis/workSchedule';
 import { fetchPositionsByDept, Position } from '../../apis/Position';
 import './style.css';
 import axios from "axios";
 import ApprovalLineSelector from "../ApprovalLineSelector";
+import RejectModal from "../RejectModal";
 
 const WorkScheduleEditor: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -44,6 +45,13 @@ const WorkScheduleEditor: React.FC = () => {
     // 작성자 서명 로컬 상태 추가
     const [localCreatorSigned, setLocalCreatorSigned] = useState(false);
 
+    // 서명된 결재자 단계 추적
+    const [signedSteps, setSignedSteps] = useState<Set<number>>(new Set());
+
+    // 반려 모달 상태
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [viewRejectReasonModalOpen, setViewRejectReasonModalOpen] = useState(false);
     useEffect(() => {
         loadData();
     }, [id]);
@@ -104,46 +112,153 @@ const WorkScheduleEditor: React.FC = () => {
 
     // 서명 처리 함수 추가
     const handleSignStep = async (stepOrder: number) => {
-        // 작성자(0번)인 경우 로컬 상태만 토글 (API 호출 X, 새로고침 X)
+        // 작성자(0번)인 경우
         if (stepOrder === 0) {
             if (localCreatorSigned) {
-                // 이미 서명이 되어있는 경우 -> 취소 물어보기
                 if (window.confirm('서명을 취소하시겠습니까?')) {
-                    setLocalCreatorSigned(false); // 서명 및 날짜 제거
+                    setLocalCreatorSigned(false);
                     setLocalCreatorSignatureUrl(null);
+
+                    // 추가: scheduleData에서 작성자 서명 정보도 제거
+                    setScheduleData(prev => {
+                        if (!prev) return prev;
+                        return {
+                            ...prev,
+                            schedule: {
+                                ...prev.schedule,
+                                creatorSignatureUrl: null,
+                                creatorSignedAt: null
+                            },
+                            // approvalSteps의 작성자 서명 정보도 비우기 (선택)
+                            approvalSteps: prev.approvalSteps?.map((s: any) =>
+                                s.stepOrder === 0 ? { ...s, signatureUrl: null, signedAt: null, isSigned: false } : s
+                            )
+                        };
+                    });
                 }
             } else {
                 if (window.confirm('서명하시겠습니까?')) {
-                    // ✅ 서명 이미지 가져오기
-                    const userRes = await fetch('/api/v1/user/me', {
-                        headers: { Authorization: `Bearer ${cookies.accessToken}` }
-                    });
-                    const userData = await userRes.json();
+                    try {
+                        const userRes = await fetch('/api/v1/user/me', {
+                            headers: { Authorization: `Bearer ${cookies.accessToken}` }
+                        });
+                        const userData = await userRes.json();
 
-                    if (userData.signimage) {
-                        const signatureUrl = `data:image/png;base64,${userData.signimage}`;
-                        setLocalCreatorSignatureUrl(signatureUrl);
-                        setLocalCreatorSigned(true);
-                    } else {
-                        alert('등록된 서명 이미지가 없습니다.');
+                        if (userData.signimage) {
+                            const signatureUrl = `data:image/png;base64,${userData.signimage}`;
+                            setLocalCreatorSignatureUrl(signatureUrl);
+                            setLocalCreatorSigned(true);
+
+                            // 추가: scheduleData에 즉시 반영 (제출 전 검사 통과용)
+                            setScheduleData(prev => {
+                                if (!prev) return prev;
+                                return {
+                                    ...prev,
+                                    schedule: {
+                                        ...prev.schedule,
+                                        creatorSignatureUrl: signatureUrl,
+                                        creatorSignedAt: new Date().toISOString()
+                                    },
+                                    approvalSteps: prev.approvalSteps?.map((s: any) =>
+                                        s.stepOrder === 0 ? { ...s, signatureUrl: signatureUrl, signedAt: new Date().toISOString(), isSigned: true } : s
+                                    )
+                                };
+                            });
+                        } else {
+                            alert('등록된 서명 이미지가 없습니다.');
+                        }
+                    } catch (err) {
+                        alert('서명 이미지 조회 실패');
                     }
                 }
             }
             return;
         }
 
-        // --- 결재자(1번 이상)인 경우 기존 로직 유지 ---
+        // ✅ [결재자 단계] 서명 여부 확인
+        const isAlreadySigned = signedSteps.has(stepOrder);
+
+        if (isAlreadySigned) {
+            // ✅ 이미 서명된 경우 -> 취소 물어보기
+            if (! window.confirm('서명을 취소하시겠습니까?')) {
+                return;
+            }
+
+            // ✅ 서명 취소 처리
+            setSignedSteps(prev => {
+                const newSet = new Set(Array.from(prev));
+                newSet.delete(stepOrder);
+                return newSet;
+            });
+
+            // ✅ approvalSteps에서 서명 정보 제거
+            setScheduleData(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    approvalSteps: prev.approvalSteps?.map((step: any) =>
+                        step.stepOrder === stepOrder
+                            ? {
+                                ... step,
+                                signatureUrl: null,
+                                signedAt: null,
+                                isSigned: false
+                            }
+                            : step
+                    ) || []
+                };
+            });
+
+            return;
+        }
+
+        // ✅ 아직 서명 안 된 경우 -> 서명 처리
         if (!window.confirm('서명하시겠습니까?')) {
             return;
         }
+
         try {
+            // ✅ 서명 이미지 가져오기
+            const userRes = await fetch('/api/v1/user/me', {
+                headers: { Authorization: `Bearer ${cookies.accessToken}` }
+            });
+            const userData = await userRes.json();
+
+            if (!userData.signimage) {
+                alert('등록된 서명 이미지가 없습니다.');
+                return;
+            }
+
+            const signatureUrl = `data:image/png;base64,${userData. signimage}`;
+
+            // ✅ API 호출 (서명 저장)
             await axios.post(
                 `/api/v1/work-schedules/${id}/sign-step`,
                 { stepOrder },
                 { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
             );
-            alert('서명이 완료되었습니다.');
-            await loadData();
+
+            // ✅ [중요] 먼저 signedSteps에 추가
+            setSignedSteps(prev => new Set(Array.from(prev).concat(stepOrder)));
+
+            // ✅ approvalSteps 업데이트 (서명 이미지 + 날짜 추가)
+            setScheduleData(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    approvalSteps: prev.approvalSteps?.map((step: any) =>
+                        step.stepOrder === stepOrder
+                            ?  {
+                                ... step,
+                                signatureUrl: signatureUrl,
+                                signedAt: new Date().toISOString(),
+                                isSigned: true
+                            }
+                            : step
+                    ) || []
+                };
+            });
+
         } catch (err: any) {
             alert(err.response?.data?.error || '서명 실패');
         }
@@ -427,18 +542,55 @@ const WorkScheduleEditor: React.FC = () => {
         }
     };
 
+    const currentStep = scheduleData?.approvalSteps?.find((step: any) => step.isCurrent);
+
+// handleApprovalAction
     const handleApprovalAction = async (approve: boolean) => {
+        if (! approve) {
+            setShowRejectModal(true);
+            return;
+        }
+
         try {
+            const currentStep = scheduleData?.approvalSteps?.find((step: any) => step.isCurrent);
+
             await axios.post(
                 `/api/v1/work-schedules/${id}/approve-step`,
-                { approve },
+                {
+                    approve: true,
+                    stepOrder: currentStep?.stepOrder
+                },
                 { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
             );
 
-            alert(approve ? '결재가 완료되었습니다.' : '반려되었습니다.');
+            alert('결재가 완료되었습니다.');
             navigate('/detail/work-schedule');
+
         } catch (err: any) {
-            alert(err.response?.data?.error || '처리 실패');
+            alert(err.response?.data?.error || '결재 처리 중 오류 발생');
+        }
+    };
+
+// handleRejectSubmit
+    const handleRejectSubmit = async (reason: string) => {
+        try {
+            const currentStep = scheduleData?.approvalSteps?.find((step: any) => step.isCurrent);
+
+            await axios. post(
+                `/api/v1/work-schedules/${id}/approve-step`,
+                {
+                    approve: false,
+                    rejectionReason: reason,
+                    stepOrder: currentStep?.stepOrder
+                },
+                { headers: { Authorization: `Bearer ${cookies. accessToken}` } }
+            );
+
+            alert('근무표가 반려되었습니다.');
+            navigate(-1);
+
+        } catch (err: any) {
+            alert(err. response?.data?.error || '반려 처리 중 오류 발생');
         }
     };
 
@@ -675,7 +827,7 @@ const WorkScheduleEditor: React.FC = () => {
         if (!scheduleData) return;
 
         // ✅ 작성자 서명 확인
-        if (!scheduleData.schedule.creatorSignatureUrl) {
+        if (!(scheduleData.schedule.creatorSignatureUrl || localCreatorSigned)) {
             alert('제출 전에 작성자 서명이 필요합니다. 결재란의 "작성" 칸을 클릭하여 서명해주세요.');
             return;
         }
@@ -817,37 +969,49 @@ const WorkScheduleEditor: React.FC = () => {
                         </tr>
                         <tr>
                             <th>서명</th>
-                            {scheduleData.approvalSteps?.map((step: any, index: number) => {
+                            {scheduleData.approvalSteps?. map((step: any, index: number) => {
                                 // 작성자 단계 여부 확인
                                 const isCreatorStep = step.stepOrder === 0;
 
                                 // 서명 권한 확인
                                 const canSign = step.isCurrent &&
-                                    step.approverId === currentUser?.userId &&
-                                    !step.isSigned;
+                                    step.approverId === currentUser?. userId &&
+                                    ! step.isSigned;
 
-                                // 보여줄 서명 여부 결정
-                                // 작성자라면 localCreatorSigned를 보고, 아니라면 DB 데이터(signatureUrl)를 봄
-                                const showSignature = isCreatorStep ? localCreatorSigned : !!step.signatureUrl;
+                                // signedSteps 확인 로직
+                                const isSigned = isCreatorStep
+                                    ? localCreatorSigned
+                                    : (signedSteps. has(step.stepOrder) || !!step.signatureUrl);
+
+                                const showSignature = isSigned;
+
+                                // 표시할 서명 이미지
+                                const displaySignature = isCreatorStep
+                                    ? localCreatorSignatureUrl
+                                    : step.signatureUrl;
 
                                 return (
                                     <td
                                         key={index}
                                         className="wse-signature-cell"
                                         onClick={() => {
-                                            // 작성자거나, 결재 권한이 있을 때만 클릭 가능
-                                            if (isCreatorStep || canSign) handleSignStep(step.stepOrder);
+                                            // ✅ [중요] 현재 사용자가 이 칸의 결재자인지 확인
+                                            const isCurrentUserApprover = step.approverId === currentUser?.userId;
+                                            const canClickSign = isCreatorStep || isCurrentUserApprover;
+
+                                            if (canClickSign) {
+                                                handleSignStep(step. stepOrder);
+                                            }
                                         }}
                                         style={{
-                                            cursor: (isCreatorStep || canSign) ? 'pointer' : 'default',
-                                            // 작성자는 언제든 클릭해서 상태를 바꿀 수 있으므로 색상 표시
-                                            backgroundColor: (canSign || (isCreatorStep && isEditable)) ? '#FFF' : 'transparent'
+                                            cursor: (isCreatorStep || (step.approverId === currentUser?. userId)) ? 'pointer' : 'default',
+                                            backgroundColor: (isCreatorStep && isEditable) || (step.approverId === currentUser?.userId) ? '#FFF' : 'transparent'
                                         }}
                                     >
-                                        {showSignature ? (
-                                            localCreatorSignatureUrl || step.signatureUrl ? (
+                                        {showSignature ?  (
+                                            displaySignature ?  (
                                                 <img
-                                                    src={localCreatorSignatureUrl || step.signatureUrl}
+                                                    src={displaySignature}
                                                     alt="서명"
                                                     style={{maxWidth: '80px', maxHeight: '60px'}}
                                                 />
@@ -855,8 +1019,8 @@ const WorkScheduleEditor: React.FC = () => {
                                                 <span style={{color: 'blue', fontWeight: 'bold'}}>서명(저장대기)</span>
                                             )
                                         ) : (
-                                            // 서명 안 된 상태 (취소했거나 미서명)
-                                            (isCreatorStep || canSign) ? (
+                                            // 서명 안 된 상태
+                                            (isCreatorStep || (step. approverId === currentUser?.userId)) ? (
                                                 <span className="sign-placeholder">클릭하여 서명</span>
                                             ) : (
                                                 <span style={{color: '#ccc'}}>-</span>
@@ -900,6 +1064,8 @@ const WorkScheduleEditor: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+
 
                 {/* 근무 타입 버튼 (편집 가능할 때만) */}
                 {isEditable && selectedCells.size > 0 && (
@@ -1119,6 +1285,16 @@ const WorkScheduleEditor: React.FC = () => {
                         목록
                     </button>
 
+                    {/* 반려된 상태 - REJECTED */}
+                    {schedule.approvalStatus === 'REJECTED' && (
+                        <button
+                            onClick={() => setViewRejectReasonModalOpen(true)}
+                            className="wse-btn-view-reason"
+                        >
+                            반려 사유 확인
+                        </button>
+                    )}
+
                     {isEditable && schedule.approvalStatus === 'DRAFT' && (
                         <>
                             <button onClick={handleTempSave} className="wse-btn-temp-save" disabled={isSaving}>
@@ -1130,12 +1306,20 @@ const WorkScheduleEditor: React.FC = () => {
                         </>
                     )}
 
-                    {schedule.approvalStatus === 'SUBMITTED' && (
-                        <>
-                            <button onClick={() => handleApprovalAction(false)} className="wse-btn-reject">반려</button>
-                            <button onClick={() => handleApprovalAction(true)} className="wse-btn-approve">승인</button>
-                        </>
-                    )}
+                    {schedule. approvalStatus === 'SUBMITTED' &&
+                        (() => {
+                            const currentStep = scheduleData?. approvalSteps?.find((step: any) => step.isCurrent);
+                            return currentStep && signedSteps. has(currentStep.stepOrder);
+                        })() && (
+                            <>
+                                <button onClick={() => handleApprovalAction(false)} className="wse-btn-reject">
+                                    반려
+                                </button>
+                                <button onClick={() => handleApprovalAction(true)} className="wse-btn-approve">
+                                    승인
+                                </button>
+                            </>
+                        )}
 
                     {/* 승인자 - REVIEWED */}
                     {schedule.approvalStatus === 'REVIEWED' && currentUser?.userId === schedule.approverId && (
@@ -1156,6 +1340,17 @@ const WorkScheduleEditor: React.FC = () => {
                         </button>
                     )}
                 </div>
+                {/* 반려 모달 */}
+                {showRejectModal && (
+                    <RejectModal
+                        isOpen={showRejectModal}
+                        onClose={() => setShowRejectModal(false)}
+                        onSubmit={handleRejectSubmit}
+                        title="반려 사유"
+                        placeholder="반려 사유를 입력해주세요..."
+                    />
+                )}
+
                 {showApprovalLineModal && (
                     <ApprovalLineSelector
                         approvalLines={approvalLines}
@@ -1172,6 +1367,23 @@ const WorkScheduleEditor: React.FC = () => {
                             setShowApprovalLineModal(false);
                             setSelectedLineId(null);
                         }}
+                    />
+                )}
+                {viewRejectReasonModalOpen && scheduleData.approvalSteps && (
+                    <RejectModal
+                        isOpen={viewRejectReasonModalOpen}
+                        onClose={() => setViewRejectReasonModalOpen(false)}
+                        initialReason={(() => {
+                            // ✅ 반려된 단계 찾기
+                            const rejectedStep = scheduleData.approvalSteps?.find(
+                                (step: ApprovalStepInfo) => step.isRejected === true
+                            );
+
+                            // ✅ 반려 사유 반환 (없으면 기본 메시지)
+                            return rejectedStep?.rejectionReason || '반려 사유가 기록되지 않았습니다.';
+                        })()}
+                        isReadOnly={true}
+                        title="반려 사유 확인"
                     />
                 )}
             </div>
