@@ -4,6 +4,7 @@ import Layout from '../../../components/Layout';
 import SignatureCanvas from 'react-signature-canvas';
 import './style.css';
 import NotificationPolicy from "../../../components/NotificationPolicy";
+import axios from "axios";
 
 interface User {
     id?: string;
@@ -57,6 +58,8 @@ const MyPage: React.FC = () => {
     const [sigError, setSigError] = useState('');
     const sigCanvas = useRef<SignatureCanvas>(null);
 
+    const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
+
     const formatPhoneNumber = (value: string) => {
         const digits = value.replace(/\D/g, '');
         if (digits.length <= 3) return digits;
@@ -88,6 +91,20 @@ const MyPage: React.FC = () => {
                 return '';
         }
     };
+
+    useEffect(() => {
+        const fetchDepartmentNames = async () => {
+            try {
+                const response = await axios.get('/api/v1/departments/names', {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` }
+                });
+                setDepartmentNames(response.data);
+            } catch (error) {
+                console.error('부서 이름 조회 실패:', error);
+            }
+        };
+        fetchDepartmentNames();
+    }, []);
 
     // 분:초 형태로 변환
     const formatTime = (time: number) => {
@@ -545,7 +562,8 @@ const MyPage: React.FC = () => {
                             <div className="profile-field">
                                 <div className="field-label">부서 / 직급</div>
                                 <div className="field-value">
-                                    {user.deptCode || '-'} {user.jobLevel ? ` / ${getPositionByJobLevel(user.jobLevel)}` : ''}
+                                    {user?.deptCode ? (departmentNames[user.deptCode] ?? user.deptCode) : '-'}
+                                    {user.jobLevel ? ` / ${getPositionByJobLevel(user.jobLevel)}` : ''}
                                 </div>
                             </div>
 

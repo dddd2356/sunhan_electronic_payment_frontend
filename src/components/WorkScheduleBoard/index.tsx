@@ -21,10 +21,29 @@ const WorkScheduleBoard: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const itemsPerPage = 10;
     const [viewRejectReasonModalOpen, setViewRejectReasonModalOpen] = useState(false);
+    const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
+
+
+    const fetchDepartmentNames = async () => {
+        try {
+            const response = await axios.get('/api/v1/departments/names', {
+                headers: { Authorization: `Bearer ${cookies.accessToken}` }
+            });
+            console.log('부서 이름 데이터:', response.data); // 디버깅용
+            setDepartmentNames(response.data);
+        } catch (error) {
+            console.error('부서 이름 조회 실패:', error);
+        }
+    };
+
     useEffect(() => {
         checkPermissions();
         loadSchedules();
     }, [tab, currentPage]);
+
+    useEffect(() => {
+        fetchDepartmentNames();
+    }, []); // 최초 1회만 실행
 
     const checkPermissions = async () => {
         try {
@@ -164,11 +183,11 @@ const WorkScheduleBoard: React.FC = () => {
 
     const getStatusClass = (status: string) => {
         switch (status) {
-            case 'DRAFT': return 'status-draft';
-            case 'SUBMITTED': return 'status-submitted';
-            case 'REVIEWED': return 'status-reviewed';
-            case 'APPROVED': return 'status-approved';
-            case 'REJECTED': return 'status-rejected';
+            case 'DRAFT': return 'wsb-status-draft';
+            case 'SUBMITTED': return 'wsb-status-submitted';
+            case 'REVIEWED': return 'wsb-status-reviewed';
+            case 'APPROVED': return 'wsb-status-approved';
+            case 'REJECTED': return 'wsb-status-rejected';
             default: return '';
         }
     };
@@ -181,14 +200,14 @@ const WorkScheduleBoard: React.FC = () => {
             <div className="work-schedule-board">
                 <div className="wsb-board-header">
                     <h1>근무현황표 관리</h1>
-                    {canCreate && (  // ✅ 권한이 있을 때만 표시
+                    {canCreate && (  // 권한이 있을 때만 표시
                         <button className="wsb-create-button" onClick={() => setShowCreateModal(true)}>
                             + 새 근무표 작성
                         </button>
                     )}
                 </div>
 
-                {/* ✅ 탭 추가 */}
+                {/* 탭 추가 */}
                 <div className="tabs">
                     <button
                         onClick={() => { setTab('list'); setCurrentPage(1); }}
@@ -249,10 +268,11 @@ const WorkScheduleBoard: React.FC = () => {
                                     className="wsb-schedule-row"
                                 >
                                     <td>{schedule.scheduleYearMonth}</td>
-                                    <td>{schedule.deptCode}</td>
+                                    <td>{departmentNames[schedule.deptCode] || schedule.deptCode}</td>
                                     <td>{schedule.createdBy}</td>
                                     <td>
-                                            <span className={`wsb-schedule-status ${getStatusClass(schedule.approvalStatus)}`}>
+                                            <span
+                                                className={`wsb-schedule-status ${getStatusClass(schedule.approvalStatus)}`}>
                                                 {getStatusText(schedule.approvalStatus)}
                                             </span>
                                     </td>

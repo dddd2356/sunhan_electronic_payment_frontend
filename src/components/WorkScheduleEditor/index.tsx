@@ -10,7 +10,9 @@ import {
     reviewWorkSchedule,
     approveWorkSchedule,
     WorkScheduleDetail,
-    WorkScheduleEntry, ApprovalStepInfo
+    WorkScheduleEntry,
+    ApprovalStepInfo,
+    DeptDutyConfig
 } from '../../apis/workSchedule';
 import { fetchPositionsByDept, Position } from '../../apis/Position';
 import './style.css';
@@ -52,6 +54,7 @@ const WorkScheduleEditor: React.FC = () => {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [viewRejectReasonModalOpen, setViewRejectReasonModalOpen] = useState(false);
+
     useEffect(() => {
         loadData();
     }, [id]);
@@ -59,6 +62,11 @@ const WorkScheduleEditor: React.FC = () => {
 
     // 공휴일 API 추가 (한국천문연구원 API 사용)
     const [holidays, setHolidays] = useState<Set<string>>(new Set());
+
+    const [dutyConfig, setDutyConfig] = useState<DeptDutyConfig | null>(null);
+    const [showConfigModal, setShowConfigModal] = useState(false); // 모달 표시 여부
+    const [tempConfig, setTempConfig] = useState<DeptDutyConfig | null>(null); // 모달 내부 임시 저장용
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const loadHolidays = async (year: number) => {
         try {
@@ -85,6 +93,99 @@ const WorkScheduleEditor: React.FC = () => {
             console.error('공휴일 조회 실패:', error);
             // 실패해도 계속 진행
         }
+    };
+
+    // PDF 다운로드 핸들러
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+    const handlePdfDownload = async () => {
+        if (isGeneratingPdf) {
+            alert('이미 PDF 생성 중입니다.');
+            return;
+        }
+
+        try {
+            setIsGeneratingPdf(true);
+
+            const timestamp = new Date().getTime();
+            const response = await axios.get(
+                `/api/v1/work-schedules/${id}/pdf?t=${timestamp}`, // 캐시 무효화
+                {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` },
+                    responseType: 'blob'
+                }
+            );
+
+            // 202: 생성 중
+            if (response.status === 202) {
+                const text = await response.data.text();
+                const json = JSON.parse(text);
+
+                if (window.confirm(json.message + '\n\n5초 후 자동으로 다시 시도합니다. 계속하시겠습니까?')) {
+                    // ✅ 5초 후 자동 재시도 (최대 3번)
+                    await pollForPdf(3);
+                } else {
+                    setIsGeneratingPdf(false);
+                }
+                return;
+            }
+
+            // 200: 다운로드
+            if (response.status === 200 && response.data instanceof Blob && response.data.size > 0) {
+                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(pdfBlob);
+                const link = document.createElement('a');
+                link.href = url;
+
+                const filename = `schedule_${scheduleData?.schedule.deptCode}_${scheduleData?.yearMonth.replace('-', '')}_${timestamp}.pdf`;
+                link.setAttribute('download', filename);
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+
+        } catch (err: any) {
+            console.error('PDF 다운로드 에러:', err);
+            alert('PDF 다운로드 실패');
+        } finally {
+            setIsGeneratingPdf(false);
+        }
+    };
+
+// ✅ 폴링 함수
+    const pollForPdf = async (maxRetries: number) => {
+        for (let i = 0; i < maxRetries; i++) {
+            await new Promise(resolve => setTimeout(resolve, 5000));  // 5초 대기
+
+            try {
+                const response = await axios.get(`/api/v1/work-schedules/${id}/pdf`, {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` },
+                    responseType: 'blob'
+                });
+
+                if (response.status === 200 && response.data instanceof Blob && response.data.size > 0) {
+                    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(pdfBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `schedule_${scheduleData?.schedule.deptCode}_${scheduleData?.yearMonth.replace('-', '')}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    setIsGeneratingPdf(false);
+                    return;
+                }
+            } catch (err) {
+                console.error(`폴링 ${i + 1}차 시도 실패:`, err);
+            }
+        }
+
+        setIsGeneratingPdf(false);
+        alert('PDF 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
     };
 
     useEffect(() => {
@@ -343,7 +444,36 @@ const WorkScheduleEditor: React.FC = () => {
         });
     };
 
-// 긴 텍스트 저장 (onBlur)
+    // 당직 설정 저장
+    const handleConfigSave = async () => {
+        if (!tempConfig || !scheduleData) return;
+
+        try {
+            // ✅ scheduleId 설정
+            const configToSave = {
+                ...tempConfig,
+                scheduleId: parseInt(id!)  // ✅ 근무표 ID 사용
+            };
+
+            console.log('💾 저장할 설정:', configToSave);
+
+            await axios.post(
+                '/api/v1/dept-duty-config',
+                configToSave,
+                { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
+            );
+
+            setDutyConfig(configToSave);
+            setShowConfigModal(false);
+            alert('당직 설정이 저장되었습니다.');
+
+        } catch (err: any) {
+            console.error('❌ 설정 저장 실패:', err);
+            alert(err.response?.data?.error || '설정 저장 실패');
+        }
+    };
+
+    // 긴 텍스트 저장 (onBlur)
     const saveLongText = async (entryId: number, text: string) => {
         const entry = scheduleData?.entries.find(e => e.id === entryId);
         if (!entry) return;
@@ -362,16 +492,19 @@ const WorkScheduleEditor: React.FC = () => {
         setIsSaving(true);
 
         try {
-            // ✅ workData + 직책 변경 저장
+            // ✅ updates에 workData, remarks, positionId, nightDutyRequired 모두 포함
             const updates = scheduleData.entries.map(entry => ({
                 entryId: entry.id,
                 workData: entry.workData || {},
-                remarks: entry.remarks || ""
+                remarks: entry.remarks || "",
+                positionId: entry.positionId !== undefined ? entry.positionId : null,  // ✅ positionId 추가
+                nightDutyRequired: entry.nightDutyRequired !== undefined ? entry.nightDutyRequired : null  // ✅ nightDutyRequired 추가
             }));
 
+            // ✅ 하나의 API 호출로 모든 업데이트
             await updateWorkData(parseInt(id!), updates, cookies.accessToken);
 
-            //하단 스케줄 비고(schedule.remarks) 저장
+            // ✅ 하단 비고 저장 (유지)
             if (scheduleData.schedule.remarks !== undefined) {
                 await axios.put(
                     `/api/v1/work-schedules/${id}/remarks`,
@@ -380,31 +513,29 @@ const WorkScheduleEditor: React.FC = () => {
                 );
             }
 
-            // ✅ 직책 변경사항 저장
-            for (const entry of scheduleData.entries) {
-                if (entry.positionId !== undefined) {
-                    await axios.put(
-                        `/api/v1/work-schedules/entries/${entry.id}/position`,
-                        { positionId: entry.positionId },
-                        { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
-                    );
-                }
-            }
-
-            // ✅ 나이트 개수 변경사항 저장
-            for (const entry of scheduleData.entries) {
-                if (entry.nightDutyRequired !== undefined) {
-                    await updateNightRequired(entry.id, entry.nightDutyRequired, cookies.accessToken);
-                }
-            }
-
+            // ✅ 작성자 서명 (유지)
             await axios.put(
                 `/api/v1/work-schedules/${id}/creator-signature`,
                 { isSigned: localCreatorSigned },
                 { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
             );
 
-            alert('임시저장되었습니다.');
+            // ✅ PDF 삭제 (유지, APPROVED 상태일 때)
+            if (scheduleData.schedule.approvalStatus === 'APPROVED') {
+                await axios.delete(
+                    `/api/v1/work-schedules/${id}/pdf`,
+                    { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
+                );
+            }
+
+            const message = scheduleData.schedule.approvalStatus === 'APPROVED'
+                ? '수정되었습니다.'
+                : '임시저장되었습니다.';
+            alert(message);
+
+            // ✅ 데이터 reload (await으로 동기화)
+            await loadData();
+
         } catch (err: any) {
             alert(err.response?.data?.error || '임시저장 실패');
         } finally {
@@ -468,7 +599,9 @@ const WorkScheduleEditor: React.FC = () => {
                             nightDutyActual: stats.nightCount,
                             nightDutyAdditional: stats.nightCount - (e.nightDutyRequired || 0),
                             offCount: stats.offCount,
-                            vacationUsedThisMonth: stats.vacationCount
+                            vacationUsedTotal: (e.vacationUsedTotal || 0) - (e.vacationUsedThisMonth || 0) + stats.vacationCount,
+                            vacationUsedThisMonth: stats.vacationCount,
+                            dutyDetailJson: stats.dutyDetail ? JSON.stringify(stats.dutyDetail) : e.dutyDetailJson
                         }
                         : e
                 )
@@ -512,7 +645,10 @@ const WorkScheduleEditor: React.FC = () => {
 
             // 근무표 상세 정보
             const detail = await fetchWorkScheduleDetail(parseInt(id!), cookies.accessToken);
-            setScheduleData(detail);
+
+            if (detail.dutyConfig) {
+                setDutyConfig(detail.dutyConfig);
+            }
 
             //서버의 JSON 문자열을 객체로 변환 (새로고침 시 데이터 유지용)
             const parsedEntries = detail.entries.map((entry: any) => ({
@@ -532,7 +668,7 @@ const WorkScheduleEditor: React.FC = () => {
 
             // 편집 권한 확인
             const canEdit = detail.schedule.createdBy === userData.userId &&
-                detail.schedule.approvalStatus === 'DRAFT';
+                (detail.schedule.approvalStatus === 'DRAFT' || detail.schedule.approvalStatus === 'APPROVED');
             setIsEditable(canEdit);
 
         } catch (err: any) {
@@ -645,14 +781,7 @@ const WorkScheduleEditor: React.FC = () => {
 
         const cellId = getCellId(entryId, day);
 
-        // 같은 행 내에서만 드래그 허용
-        if (dragStartCell) {
-            const [startEntryId] = dragStartCell.split('-');
-            if (startEntryId === entryId.toString()) {
-                // ✅ Array.from()으로 변환하여 스프레드 연산자 사용
-                setSelectedCells(prev => new Set([...Array.from(prev), cellId]));
-            }
-        }
+        setSelectedCells(prev => new Set([...Array.from(prev), cellId]));
     };
 
 // 마우스 업 핸들러
@@ -704,7 +833,9 @@ const WorkScheduleEditor: React.FC = () => {
                 nightDutyActual: stats.nightCount,
                 nightDutyAdditional: stats.nightCount - (entry.nightDutyRequired || 0),
                 offCount: stats.offCount,
-                vacationUsedThisMonth: stats.vacationCount
+                vacationUsedTotal: (entry.vacationUsedTotal || 0) - (entry.vacationUsedThisMonth || 0) + stats.vacationCount,
+                vacationUsedThisMonth: stats.vacationCount,
+                dutyDetailJson: stats.dutyDetail ? JSON.stringify(stats.dutyDetail) : entry.dutyDetailJson
             };
         });
 
@@ -715,44 +846,120 @@ const WorkScheduleEditor: React.FC = () => {
 
         setSelectedCells(new Set());
 
-        // ✅ 백엔드 저장 제거 - 임시저장 버튼을 눌러야 저장됨
     };
 
-    // ✅ 통계 계산 헬퍼 함수 추가
+    // 통계 계산 헬퍼 함수 추가
     const calculateEntryStatistics = (workData: Record<string, string>) => {
         let nightCount = 0;
         let offCount = 0;
-        let vacationCount = 0.0; // 정수 카운트 (0.5 단위)
+        let vacationCount = 0.0;
 
-        Object.values(workData).forEach(value => {
+        // 상세 분류를 위한 객체 (백엔드와 키 이름 일치)
+        const detailCount: Record<string, number> = {
+            '평일': 0,
+            '금요일': 0,
+            '토요일': 0,
+            '공휴일 및 일요일': 0
+        };
+
+        const [year, month] = scheduleData!.yearMonth.split('-').map(Number);
+
+        // ✅ dutyConfig가 없으면 기본 로직 (나이트 모드)
+        if (!dutyConfig) {
+            Object.values(workData).forEach(value => {
+                if (!value || value.trim() === '') return;
+                const trimmed = value.trim().toUpperCase();
+
+                if (trimmed === 'N' || trimmed.startsWith('NIGHT')) {
+                    nightCount++;
+                } else if (trimmed === 'HN') {
+                    nightCount++;
+                    vacationCount += 0.5;
+                } else if (trimmed.startsWith('OFF')) {
+                    offCount++;
+                } else if (trimmed.includes('연') || trimmed === 'AL' || trimmed === 'ANNUAL') {
+                    vacationCount += 1;
+                } else if (trimmed === '반차' || trimmed === 'HD' || trimmed === 'HE') {
+                    vacationCount += 0.5;
+                }
+            });
+
+            return { nightCount, offCount, vacationCount, dutyDetail: null };
+        }
+
+        // ✅ dutyConfig 기반 계산
+        Object.entries(workData).forEach(([key, value]) => {
             if (!value || value.trim() === '') return;
+            if (key === 'rowType' || key === 'longTextValue') return;
 
             const trimmed = value.trim().toUpperCase();
+            const symbol = dutyConfig.cellSymbol.toUpperCase();
+            const day = parseInt(key);
 
-            // 나이트 카운트
-            if (trimmed === 'N' || trimmed.startsWith('NIGHT')) {
-                nightCount++;
+            // 당직/나이트 판별
+            if (dutyConfig.dutyMode === 'NIGHT_SHIFT') {
+                // 나이트 모드
+                if (trimmed === 'N' || trimmed.startsWith('NIGHT')) {
+                    nightCount++;
+                }
+            } else {
+                // 당직 모드 (여기가 핵심 수정 부분)
+                if (trimmed === symbol ||
+                    trimmed.startsWith(symbol) ||
+                    trimmed.match(new RegExp(`^${symbol}[1-3]$`))) {
+
+                    nightCount++;
+
+                    // --- 상세 분류 로직 추가 (백엔드 로직 복제) ---
+                    const date = new Date(year, month - 1, day);
+                    const dayOfWeek = date.getDay(); // 0:일, 6:토
+                    const isHol = holidays.has(`${month}-${day}`); // 공휴일 여부 확인
+
+                    // 수동 접미사 처리 (N1, N2, N3)
+                    if (trimmed.endsWith('1')) {
+                        detailCount['평일']++;
+                    } else if (trimmed.endsWith('2')) {
+                        detailCount['토요일']++;
+                    } else if (trimmed.endsWith('3')) {
+                        detailCount['공휴일 및 일요일']++;
+                    } else {
+                        // 자동 분류
+                        if (isHol || dayOfWeek === 0) {
+                            detailCount['공휴일 및 일요일']++;
+                        } else if (dayOfWeek === 6) {
+                            detailCount['토요일']++;
+                        } else if (dayOfWeek === 5 && dutyConfig.useFriday) {
+                            detailCount['금요일']++;
+                        } else {
+                            detailCount['평일']++;
+                        }
+                    }
+                }
             }
-            // HN은 나이트 + 0.5 연차
-            else if (trimmed === 'HN') {
+
+            // HN 처리
+            if (trimmed === 'HN') {
                 nightCount++;
                 vacationCount += 0.5;
             }
-            // Off 카운트
-            else if (trimmed.startsWith('OFF')) {
+
+            // OFF 카운트
+            if (trimmed.startsWith('OFF')) {
                 offCount++;
             }
-            // 연차 (1일)
-            else if (trimmed.includes('연') || trimmed === 'AL' || trimmed === 'ANNUAL') {
+
+            // 연차 계산
+            if (trimmed.includes('연') || trimmed === 'AL' || trimmed === 'ANNUAL') {
                 vacationCount += 1;
-            }
-            // 반차 (0.5일)
-            else if (trimmed === '반차' || trimmed === 'HD' || trimmed === 'HE') {
+            } else if (trimmed === '반차' || trimmed === 'HD' || trimmed === 'HE') {
                 vacationCount += 0.5;
             }
         });
 
-        return { nightCount, offCount, vacationCount };
+        // dutyConfig가 ON_CALL_DUTY일 때만 detail 반환
+        const dutyDetail = dutyConfig.dutyMode === 'ON_CALL_DUTY' ? detailCount : null;
+
+        return { nightCount, offCount, vacationCount, dutyDetail };
     };
 
     const checkConsecutivePattern = (workData: Record<string, string>): string[] => {
@@ -826,9 +1033,15 @@ const WorkScheduleEditor: React.FC = () => {
     const handleSubmit = async () => {
         if (!scheduleData) return;
 
-        // ✅ 작성자 서명 확인
+        // 작성자 서명 확인
         if (!(scheduleData.schedule.creatorSignatureUrl || localCreatorSigned)) {
             alert('제출 전에 작성자 서명이 필요합니다. 결재란의 "작성" 칸을 클릭하여 서명해주세요.');
+            return;
+        }
+
+        // 승인된 상태에서는 저장만 수행
+        if (scheduleData.schedule.approvalStatus === 'APPROVED') {
+            await handleTempSave();  // 임시저장 로직 재사용
             return;
         }
 
@@ -878,6 +1091,9 @@ const WorkScheduleEditor: React.FC = () => {
             // 5. 결재라인 선택 모달 표시
             await loadApprovalLines();
             setShowApprovalLineModal(true);
+
+            console.log('📊 제출할 entries 샘플:', scheduleData.entries[0]);
+            console.log('📊 workData 샘플:', scheduleData.entries[0]?.workData);
 
         } catch (err: any) {
             alert('제출 전 저장 실패: ' + (err.response?.data?.error || err.message));
@@ -934,6 +1150,108 @@ const WorkScheduleEditor: React.FC = () => {
 
     const { schedule, entries, users } = scheduleData;
 
+    const renderDutyHeaders = () => {
+        if (!dutyConfig) {
+            return (
+                <>
+                    <th colSpan={3}>나이트</th>
+                    <th rowSpan={2}>OFF 개수</th>
+                </>
+            );
+        }
+
+        if (dutyConfig.dutyMode === 'NIGHT_SHIFT') {
+            return (
+                <>
+                    <th colSpan={3}>{dutyConfig.displayName}</th>
+                    <th rowSpan={2}>OFF 개수</th>
+                </>
+            );
+        } else {
+            // 당직 모드 - 활성화된 카테고리 개수만큼
+            let categoryCount = 0;
+            if (dutyConfig.useWeekday) categoryCount++;
+            if (dutyConfig.useFriday) categoryCount++;
+            if (dutyConfig.useSaturday) categoryCount++;
+            if (dutyConfig.useHolidaySunday) categoryCount++;
+
+            return (
+                <th colSpan={categoryCount}>{dutyConfig.displayName}</th>
+            );
+        }
+    };
+
+    const renderDutySubHeaders = () => {
+        if (!dutyConfig || dutyConfig.dutyMode === 'NIGHT_SHIFT') {
+            return (
+                <>
+                    <th>의무 개수</th>
+                    <th>실제 개수</th>
+                    <th>추가 개수</th>
+                </>
+            );
+        }
+
+        // 당직 모드
+        const headers = [];
+        if (dutyConfig.useWeekday) headers.push(<th key="weekday">평일</th>);
+        if (dutyConfig.useFriday) headers.push(<th key="friday">금요일</th>);
+        if (dutyConfig.useSaturday) headers.push(<th key="saturday">토요일</th>);
+        if (dutyConfig.useHolidaySunday) headers.push(<th key="holiday">공휴일 및 일요일</th>);
+
+        return headers;
+    };
+
+    const renderDutyCells = (entry: WorkScheduleEntry) => {
+        if (!dutyConfig || dutyConfig.dutyMode === 'NIGHT_SHIFT') {
+            // 나이트 모드
+            return (
+                <>
+                    <td>
+                        {isEditable ? (
+                            <input
+                                type="text"
+                                value={entry.nightDutyRequired || 0}
+                                onChange={(e) => handleNightRequiredChange(entry.id, parseInt(e.target.value) || 0)}
+                                className="wse-number-input-text"
+                                min="0"
+                            />
+                        ) : entry.nightDutyRequired}
+                    </td>
+                    <td>{entry.nightDutyActual}</td>
+                    <td>{getNightDisplay(entry)}</td>
+                    <td>{entry.offCount}</td>
+                </>
+            );
+        }
+
+        // 당직 모드 - dutyDetailJson 파싱
+        let detailCount: Record<string, number> = {};
+        try {
+            if (entry.dutyDetailJson) {
+                detailCount = JSON.parse(entry.dutyDetailJson);
+            }
+        } catch (e) {
+            console.error('dutyDetailJson 파싱 실패:', e);
+        }
+
+        const cells = [];
+        if (dutyConfig.useWeekday) {
+            cells.push(<td key="weekday">{detailCount['평일'] || 0}</td>);
+        }
+        if (dutyConfig.useFriday) {
+            cells.push(<td key="friday">{detailCount['금요일'] || 0}</td>);
+        }
+        if (dutyConfig.useSaturday) {
+            cells.push(<td key="saturday">{detailCount['토요일'] || 0}</td>);
+        }
+        if (dutyConfig.useHolidaySunday) {
+            cells.push(<td key="holiday">{detailCount['공휴일 및 일요일'] || 0}</td>);
+        }
+
+        return cells;
+    };
+
     return (
         <Layout>
             <div className="work-schedule-editor" onMouseUp={handleMouseUp}>
@@ -946,8 +1264,24 @@ const WorkScheduleEditor: React.FC = () => {
                     <h1 className="wse-schedule-title">
                         {scheduleData.yearMonth.replace('-', '년 ')}월 근무현황표
                     </h1>
-                    <div className="wse-header-info">
-                        <span>부서: {schedule.deptCode}</span>
+
+                    <div>
+                        <span className="wse-header-info">
+                            <span>부서: {scheduleData.deptName || schedule.deptCode}</span>
+                        </span>
+                        {isEditable && (
+                            <button
+                                className="wse-btn-config"
+                                onClick={() => {
+                                    if (dutyConfig) {
+                                        setTempConfig({...dutyConfig});
+                                        setShowConfigModal(true);
+                                    }
+                                }}
+                            >
+                                ⚙️ 당직 설정
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -1100,7 +1434,7 @@ const WorkScheduleEditor: React.FC = () => {
                 {/* 근무표 */}
                 <div className="wse-schedule-table-container">
                     <table className="wse-schedule-table">
-                    <thead>
+                        <thead>
                         <tr>
                             <th rowSpan={2}>No</th>
                             <th rowSpan={2}>직책</th>
@@ -1118,15 +1452,12 @@ const WorkScheduleEditor: React.FC = () => {
                                     </th>
                                 );
                             })}
-                            <th colSpan={3}>나이트</th>
-                            <th rowSpan={2}>OFF 개수</th>
+                            {renderDutyHeaders()} {/* ✅ 동적 헤더 */}
                             <th colSpan={3}>휴가</th>
                             <th rowSpan={2}>비고</th>
                         </tr>
                         <tr>
-                            <th>의무 개수</th>
-                            <th>실제 개수</th>
-                            <th>추가 개수</th>
+                            {renderDutySubHeaders()} {/* ✅ 동적 서브헤더 */}
                             <th>총 휴가수</th>
                             <th>이달 사용수</th>
                             <th>사용 총계</th>
@@ -1179,8 +1510,8 @@ const WorkScheduleEditor: React.FC = () => {
                                                 onChange={(e) => handleLongTextChange(entry.id, e.target.value)}
                                                 placeholder="내용을 입력하세요 (예: 장기 휴가, 병가 등)"
                                                 style={{
-                                                    width: '90%',
-                                                    height: '80px',
+                                                    width: '95%',
+                                                    height: '90px',
                                                     border: 'none',
                                                     textAlign: 'center',
                                                     backgroundColor: '#f9f9f9',
@@ -1226,20 +1557,7 @@ const WorkScheduleEditor: React.FC = () => {
                                     )}
 
                                     {/* 통계 및 기타 컬럼 */}
-                                    <td>
-                                        {isEditable ? (
-                                            <input
-                                                type="text"
-                                                value={entry.nightDutyRequired || 0}
-                                                onChange={(e) => handleNightRequiredChange(entry.id, parseInt(e.target.value) || 0)}  // ✅ onBlur → onChange
-                                                className="number-input-text"
-                                                min="0"
-                                            />
-                                        ) : entry.nightDutyRequired}
-                                    </td>
-                                    <td>{entry.nightDutyActual}</td>
-                                    <td>{getNightDisplay(entry)}</td>
-                                    <td>{entry.offCount}</td>
+                                    {renderDutyCells(entry)}
                                     <td>{entry.vacationTotal}</td>
                                     <td>{entry.vacationUsedThisMonth}</td>
                                     <td>{entry.vacationUsedTotal}</td>
@@ -1251,7 +1569,7 @@ const WorkScheduleEditor: React.FC = () => {
                                                 type="text"
                                                 value={entry.remarks || ''}
                                                 onChange={(e) => handleRemarksChange(entry.id, e.target.value)}
-                                                className="remarks-input"
+                                                className="wse-remarks-input"
                                             />
                                         ) : (
                                             entry.remarks
@@ -1295,14 +1613,33 @@ const WorkScheduleEditor: React.FC = () => {
                         </button>
                     )}
 
-                    {isEditable && schedule.approvalStatus === 'DRAFT' && (
+                    {isEditable && (schedule.approvalStatus === 'DRAFT' || schedule.approvalStatus === 'APPROVED') && (
                         <>
-                            <button onClick={handleTempSave} className="wse-btn-temp-save" disabled={isSaving}>
-                                {isSaving ? '저장중...' : '임시저장'}
-                            </button>
-                            <button onClick={handleSubmit} className="wse-btn-submit">
-                                제출
-                            </button>
+                            {schedule.approvalStatus === 'APPROVED' ? (
+                                <button
+                                    onClick={handleTempSave}
+                                    className="wse-btn-edit"
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? '저장중...' : '수정'}
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleTempSave}
+                                        className="wse-btn-temp-save"
+                                        disabled={isSaving}
+                                    >
+                                        {isSaving ? '저장중...' : '임시저장'}
+                                    </button>
+                                    <button
+                                        onClick={handleSubmit}
+                                        className="wse-btn-submit"
+                                    >
+                                        제출
+                                    </button>
+                                </>
+                            )}
                         </>
                     )}
 
@@ -1333,13 +1670,143 @@ const WorkScheduleEditor: React.FC = () => {
                         </>
                     )}
 
-                    {/* 승인 완료 - APPROVED */}
-                    {schedule.approvalStatus === 'APPROVED' && schedule.isPrintable && (
-                        <button className="wse-btn-print">
-                            PDF 다운로드
+                    {schedule.approvalStatus === 'APPROVED' && (
+                        <button
+                            onClick={handlePdfDownload}
+                            className="wse-btn-print"
+                            disabled={isGeneratingPdf}
+                        >
+                            {isGeneratingPdf ? 'PDF 생성 중...' : 'PDF 다운로드'}
                         </button>
                     )}
                 </div>
+
+                {/* 당직 설정 모달 */}
+                {showConfigModal && tempConfig && (
+                    <div className="wse-modal-overlay" onClick={() => setShowConfigModal(false)}>
+                        <div className="wse-modal-content" onClick={(e) => e.stopPropagation()}>
+                            <h2>당직 설정</h2>
+
+                            {/* 모드 선택 */}
+                            <div className="config-section">
+                                <label>
+                                    <input
+                                        type="radio"
+                                        checked={tempConfig.dutyMode === 'NIGHT_SHIFT'}
+                                        onChange={() => setTempConfig({
+                                            ...tempConfig,
+                                            dutyMode: 'NIGHT_SHIFT',
+                                            displayName: '나이트',
+                                            cellSymbol: 'N'
+                                        })}
+                                    />
+                                    나이트 모드
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        checked={tempConfig.dutyMode === 'ON_CALL_DUTY'}
+                                        onChange={() => setTempConfig({
+                                            ...tempConfig,
+                                            dutyMode: 'ON_CALL_DUTY',
+                                            displayName: '당직',
+                                            cellSymbol: 'N'
+                                        })}
+                                    />
+                                    당직 모드
+                                </label>
+                            </div>
+
+                            {/* 당직 모드 세부 설정 */}
+                            {tempConfig.dutyMode === 'ON_CALL_DUTY' && (
+                                <div className="config-section">
+                                    <h3>당직 카테고리 설정</h3>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={tempConfig.useWeekday || false}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                useWeekday: e.target.checked
+                                            })}
+                                        />
+                                        평일 (월~목)
+                                    </label>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={tempConfig.useFriday || false}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                useFriday: e.target.checked
+                                            })}
+                                        />
+                                        금요일
+                                    </label>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={tempConfig.useSaturday || false}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                useSaturday: e.target.checked
+                                            })}
+                                        />
+                                        토요일
+                                    </label>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={tempConfig.useHolidaySunday || false}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                useHolidaySunday: e.target.checked
+                                            })}
+                                        />
+                                        공휴일 및 일요일
+                                    </label>
+
+                                    <div className="wse-input-group">
+                                        <label>셀 표시 기호:</label>
+                                        <input
+                                            type="text"
+                                            value={tempConfig.cellSymbol || ''}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                cellSymbol: e.target.value
+                                            })}
+                                            maxLength={2}
+                                            placeholder="예: 당, N"
+                                        />
+                                    </div>
+
+                                    <div className="wse-input-group">
+                                        <label>표시명:</label>
+                                        <input
+                                            type="text"
+                                            value={tempConfig.displayName || ''}
+                                            onChange={(e) => setTempConfig({
+                                                ...tempConfig,
+                                                displayName: e.target.value
+                                            })}
+                                            placeholder="예: 당직, 나이트"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="wse-modal-action-buttons">
+                                <button onClick={() => setShowConfigModal(false)} className="wse-btn-list">
+                                    취소
+                                </button>
+                                <button onClick={handleConfigSave} className="wse-btn-submit">
+                                    저장
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* 반려 모달 */}
                 {showRejectModal && (
                     <RejectModal
@@ -1369,6 +1836,7 @@ const WorkScheduleEditor: React.FC = () => {
                         }}
                     />
                 )}
+
                 {viewRejectReasonModalOpen && scheduleData.approvalSteps && (
                     <RejectModal
                         isOpen={viewRejectReasonModalOpen}

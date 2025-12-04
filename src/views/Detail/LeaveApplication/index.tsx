@@ -160,6 +160,7 @@ const LeaveApplication = () => {
     const [selectedApprovalLineId, setSelectedApprovalLineId] = useState<number | null>(null);
     const [approvalLines, setApprovalLines] = useState<ApprovalLine[]>([]);
     const [showApprovalLineSelector, setShowApprovalLineSelector] = useState(false);
+    const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
 
     // jobLevel을 직책명으로 변환하는 함수
     const getPositionByJobLevel = (jobLevel: string | undefined): string => {
@@ -299,6 +300,20 @@ const LeaveApplication = () => {
 
         setTotalDays(total);
     }, [flexiblePeriods, consecutivePeriod]);
+
+    useEffect(() => {
+        const fetchDepartmentNames = async () => {
+            try {
+                const response = await axios.get('/api/v1/departments/names', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setDepartmentNames(response.data);
+            } catch (error) {
+                console.error('부서 이름 조회 실패:', error);
+            }
+        };
+        fetchDepartmentNames();
+    }, [token]);
 
     // 결재라인 목록 조회
     useEffect(() => {
@@ -1922,7 +1937,7 @@ const LeaveApplication = () => {
                                 <td className="input-cell" colSpan={3}>
                                     <input
                                         type="text"
-                                        value={applicantInfo.department}
+                                        value={departmentNames[applicantInfo.department] || applicantInfo.department}
                                         onChange={(e) => setApplicantInfo(prev => ({
                                             ...prev,
                                             department: e.target.value

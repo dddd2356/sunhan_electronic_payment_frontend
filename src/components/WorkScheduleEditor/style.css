@@ -41,6 +41,7 @@
 
 .wse-header-info {
     font-size: 16px;
+    padding-right: 20px;
 }
 
 /* 결재란 */
@@ -53,14 +54,17 @@
 .wse-approval-table {
     border-collapse: collapse;
     border: 2px solid #333;
+    font-size: 11px; /* baseFontSize - 1 → 11px */
+    margin-bottom: 1mm;
 }
 
 .wse-approval-table th,
 .wse-approval-table td {
     border: 1px solid #333;
-    padding: 10px;
+    padding: 4px 8px; /* 10px → 4px 8px */
     text-align: center;
-    min-width: 100px;
+    min-width: 60px; /* 100px → 60px */
+    font-size: 11px; /* 추가 */
 }
 
 .wse-approval-table th {
@@ -69,13 +73,13 @@
 }
 
 .wse-signature-cell {
-    height: 60px;
+    height: 40px; /* 60px → 40px */
     position: relative;
 }
 
 .wse-signature-cell img {
-    max-width: 80px;
-    max-height: 50px;
+    max-width: 60px; /* 80px → 60px */
+    max-height: 35px; /* 50px → 35px */
 }
 
 .wse-date-cell {
@@ -89,22 +93,22 @@
     top: 0;
     z-index: 100;
     background: white;
-    padding: 15px;
-    margin: 20px 0;
+    padding: 8px; /* 15px → 8px */
+    margin: 15px 0; /* 20px → 15px */
     border: 2px solid #4CAF50;
     border-radius: 8px;
     display: flex;
-    gap: 10px;
+    gap: 6px; /* 10px → 6px */
     align-items: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .wse-btn-work-type {
-    padding: 10px 20px;
+    padding: 6px 12px; /* 10px 20px → 6px 12px */
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 13px; /* 16px → 13px */
     font-weight: bold;
     color: white;
     transition: all 0.3s;
@@ -122,11 +126,28 @@
 .wse-btn-off { background-color: #4CAF50; }
 .wse-btn-leave { background-color: #F44336; }
 .wse-btn-clear { background-color: #9E9E9E; }
+.wse-btn-d1 { background-color: #1976D2; } /* D1 버튼 */
+.wse-btn-half { background-color: #FFA726; } /* HD, HE, HN, 반차 버튼 */
+.wse-btn-temp-save { /* 임시저장 버튼 */
+    background-color: #757575;
+    color: white;
+}
+
+.wse-btn-d:hover { background-color: #1565C0; }
+.wse-btn-d1:hover { background-color: #1565C0; }
+.wse-btn-n:hover { background-color: #7B1FA2; }
+.wse-btn-e:hover { background-color: #F57C00; }
+.wse-btn-half:hover { background-color: #FB8C00; }
+.wse-btn-off:hover { background-color: #388E3C; }
+.wse-btn-leave:hover { background-color: #D32F2F; }
+.wse-btn-clear:hover { background-color: #616161; }
+.wse-btn-temp-save:hover { background-color: #616161; }
 
 .wse-selected-count {
     margin-left: auto;
     font-weight: bold;
     color: #4CAF50;
+    font-size: 13px; /* 추가 */
 }
 
 /* 근무표 테이블 */
@@ -145,8 +166,11 @@
 .wse-schedule-table th,
 .wse-schedule-table td {
     border: 1px solid #999;
-    padding: 8px;
+    padding: 2px; /* 4px 2px → 2px */
     text-align: center;
+    font-size: 11px;
+    height: 24px; /* 추가 */
+    vertical-align: middle;
 }
 
 .wse-schedule-table thead th {
@@ -164,21 +188,58 @@
 
 /* 근무 셀 */
 .wse-work-cell {
-    min-width: 35px;
-    height: 35px;
+    min-width: 28px;
+    height: 24px; /* 28px → 24px */
     cursor: pointer;
     user-select: none;
     transition: background-color 0.2s;
     font-weight: bold;
-}
-
-.wse-work-cell:hover {
-    background-color: #e3f2fd;
+    font-size: 10px;
+    line-height: 24px; /* 추가: 수직 중앙 정렬 */
 }
 
 .wse-work-cell.selected {
-    background-color: #4CAF50 !important;
-    color: white;
+    background-color: rgba(139, 195, 74, 0.4) !important; /* 연두색 반투명 */
+    border: 2px solid #689f38 !important; /* 진한 연두색 테두리 */
+    box-sizing: border-box;
+    outline: 2px solid #8bc34a; /* 밝은 연두 외곽선 */
+    outline-offset: -1px;
+}
+
+.wse-work-cell:hover {
+    background-color: rgba(139, 195, 74, 0.2); /* 연한 연두색 */
+    outline: 1px solid #8bc34a;
+}
+
+
+/* number-input-text 크기 조정 */
+.wse-number-input-text {
+    width: 100%;
+    max-width: 45px; /* 50px → 45px */
+    height: 24px; /* 추가: 셀 높이와 동일 */
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 11px;
+    box-sizing: border-box;
+}
+
+/* remarks-input 크기 조정 */
+.wse-remarks-input {
+    width: 100%;
+    height: 24px; /* 추가: 셀 높이와 동일 */
+    padding: 2px 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: left; /* 좌측 정렬 */
+    font-size: 10px;
+    box-sizing: border-box;
+}
+
+/* 테이블 행 높이 조정 */
+.wse-schedule-table tbody tr {
+    height: 24px; /* 추가 */
 }
 
 .wse-work-cell.d {
@@ -206,15 +267,16 @@
     color: #b71c1c;
 }
 
+
 /* 입력 필드 */
 .wse-number-input,
 .wse-remarks-input {
     width: 100%;
-    padding: 4px;
+    padding: 2px; /* 4px → 2px */
     border: 1px solid #ddd;
     border-radius: 4px;
     text-align: center;
-    font-size: 14px;
+    font-size: 11px; /* 14px → 11px */
 }
 
 .wse-number-input {
@@ -240,7 +302,7 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 18px;
+    font-size: 14px;
     resize: vertical;
 }
 
@@ -281,7 +343,12 @@
     color: white;
 }
 
-.wse-btn-approve {
+.wse-btn-approve{
+    background-color: #2196F3;
+    color: white;
+}
+
+.wse-btn-edit{
     background-color: #2196F3;
     color: white;
 }
@@ -327,12 +394,13 @@
     font-size: 0.85em;
     color: #666;
 }
+
 /* 직책 선택 박스 스타일 */
 .wse-position-select {
     width: 100%;
     height: 100%;
-    padding: 5px;
-    font-size: 14px; /* 글자 크기 키움 */
+    padding: 2px; /* 5px → 2px */
+    font-size: 11px; /* 14px → 11px */
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: #fff;
@@ -390,17 +458,120 @@
     background-color: #b91c1c;
 }
 
+/* 모달 스타일 */
+.wse-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.wse-modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.wse-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.config-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.config-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.config-section label {
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.config-section input[type="radio"],
+.config-section input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.wse-input-group {
+    margin-top: 15px;
+}
+
+.wse-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.wse-input-group input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.wse-modal-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.wse-modal-action-buttons button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.wse-btn-config {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.wse-btn-config:hover {
+    background: #5a6268;
+}
 
 /* 반응형 */
-@media (max-width: 1200px) {
-    .wse-schedule-table {
-        font-size: 12px;
-    }
-
     .wse-work-cell,
     .wse-day-header {
         min-width: 30px;
         height: 30px;
-        font-size: 11px;
+        @media (max-width: 1200px) {
+            .wse-schedule-table {
+                font-size: 12px;
+            }
+
+            font-size: 11px;
     }
 }

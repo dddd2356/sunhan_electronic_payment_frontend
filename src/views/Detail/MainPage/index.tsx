@@ -5,6 +5,7 @@ import ProfileCompletionPopup from "../../../components/ProfileCompletionPopup";
 import {useCookies} from "react-cookie";
 import VacationHistoryPopup from "../../../components/VacationHistoryPopup";
 import ReportsModal from "../../../components/ReportsModal";
+import axios from "axios";
 
 interface UserProfile {
     userId: string;
@@ -86,6 +87,9 @@ const MainPage: React.FC = () => {
 
     const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false); // 문서관리 팝업 상태 추가
     const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+
+    const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
+
     const handleShowHistoryPopup = () => {
         setShowHistoryPopup(true);
     };
@@ -117,6 +121,20 @@ const MainPage: React.FC = () => {
     const handleCloseHistoryPopup = () => {
         setShowHistoryPopup(false);
     };
+
+    useEffect(() => {
+        const fetchDepartmentNames = async () => {
+            try {
+                const response = await axios.get('/api/v1/departments/names', {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` }
+                });
+                setDepartmentNames(response.data);
+            } catch (error) {
+                console.error('부서 이름 조회 실패:', error);
+            }
+        };
+        fetchDepartmentNames();
+    }, []);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -397,7 +415,7 @@ const MainPage: React.FC = () => {
                                     <div className="mp-info-details">
                                         <span className="mp-info-label">부서 / 직급</span>
                                         <span className="mp-info-value">
-                                            {userProfile?.deptCode || '미등록'}
+                                            {(userProfile?.deptCode ? (departmentNames[userProfile.deptCode] ?? userProfile.deptCode) : '미등록')}
                                             {userProfile?.jobLevel ? ` / ${getPositionByJobLevel(userProfile.jobLevel)}` : ''}
                                         </span>
                                     </div>

@@ -17,6 +17,18 @@ export interface ApprovalStepInfo {
     rejectedBy?: string;
 }
 
+export interface DeptDutyConfig {
+    id?: number;
+    scheduleId: number;
+    dutyMode: 'NIGHT_SHIFT' | 'ON_CALL_DUTY';
+    displayName: string;
+    cellSymbol: string;
+    useWeekday: boolean;
+    useFriday: boolean;
+    useSaturday: boolean;
+    useHolidaySunday: boolean;
+}
+
 export interface WorkSchedule {
     id: number;
     deptCode: string;
@@ -50,6 +62,7 @@ export interface WorkScheduleEntry {
     nightDutyRequired: number;
     nightDutyActual: number;
     nightDutyAdditional: number;
+    dutyDetailJson?: string;
     offCount: number;
     vacationTotal: number;
     vacationUsedThisMonth: number;
@@ -65,7 +78,24 @@ export interface WorkScheduleDetail {
     yearMonth: string;
     daysInMonth: number;
     approvalSteps?: ApprovalStepInfo[];
+    dutyConfig?: DeptDutyConfig;
+    deptName?: string;
 }
+
+/**
+ * 부서 당직 설정 저장
+ */
+export const saveDeptDutyConfig = async (
+    config: DeptDutyConfig,
+    token: string
+): Promise<DeptDutyConfig> => {
+    const response = await axios.post(
+        `/api/v1/dept-duty-config`, // DeptDutyConfigController의 경로
+        config,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+};
 
 /**
  * 근무표 목록 조회 (내 부서)

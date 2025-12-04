@@ -11,6 +11,7 @@ import {
     Position
 } from '../../apis/Position';
 import './style.css';
+import axios from "axios";
 
 const PositionManagement: React.FC = () => {
     const [cookies] = useCookies(['accessToken']);
@@ -25,6 +26,23 @@ const PositionManagement: React.FC = () => {
     const [positionName, setPositionName] = useState('');
     const [displayOrder, setDisplayOrder] = useState<number | null>(null);
     const navigate = useNavigate();
+
+    const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        const fetchDepartmentNames = async () => {
+            try {
+                const response = await axios.get('/api/v1/departments/names', {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` }
+                });
+                setDepartmentNames(response.data);
+            } catch (error) {
+                console.error('부서 이름 조회 실패:', error);
+            }
+        };
+        fetchDepartmentNames();
+    }, []);
+
     useEffect(() => {
         checkAccess();
     }, []);
@@ -184,12 +202,12 @@ const PositionManagement: React.FC = () => {
                 <div className="pm-page-header">
                     <h1>직책 관리</h1>
                     <div className="pm-header-info">
-                        <span>부서: {currentUser?.deptCode}</span>
+                        <span>부서: {departmentNames[currentUser?.deptCode] || currentUser?.deptCode}</span>
                     </div>
                 </div>
 
                 <div className="pm-position-actions">
-                    <button onClick={handleCreate} className="pm-btn-create">
+                <button onClick={handleCreate} className="pm-btn-create">
                         + 새 직책 추가
                     </button>
                 </div>
