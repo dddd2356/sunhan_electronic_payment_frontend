@@ -665,6 +665,7 @@ const MyApprovalLineEditor: React.FC = () => {
                                             ? steps[currentEditingStep]?.approverId ?? undefined
                                             : undefined
                                     }
+                                    allDepartments={true}
                                 />
                             </div>
                         </div>

@@ -1,0 +1,92 @@
+/* src/components/OrgChartModal/style.css */
+.org-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.org-modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.org-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.org-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.org-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.org-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.org-selected-info {
+    margin-top: 16px;
+    padding: 12px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 500;
+    color: #1976d2;
+}
+
+.org-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.org-btn-cancel,
+.org-btn-confirm {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.org-btn-cancel {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.org-btn-confirm {
+    background: #1976d2;
+    color: white;
+}
+
+.org-btn-confirm:hover {
+    background: #1565c0;
+}

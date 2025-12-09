@@ -204,3 +204,295 @@
 .wsb-error {
     color: #d32f2f;
 }
+
+/* 모달 내부 폼 요소 스타일링 */
+.wsb-modal-content input[type="month"],
+.wsb-modal-content input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 15px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+}
+
+.wsb-modal-content input[type="month"]:focus,
+.wsb-modal-content input[type="text"]:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+.wsb-modal-content input[type="month"]:hover,
+.wsb-modal-content input[type="text"]:hover {
+    border-color: #adb5bd;
+}
+
+/* 캘린더 아이콘 커스텀 (Webkit 브라우저) */
+.wsb-modal-content input[type="month"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+    transition: all 0.2s ease;
+}
+
+.wsb-modal-content input[type="month"]::-webkit-calendar-picker-indicator:hover {
+    background-color: #e9ecef;
+}
+
+/* 플레이스홀더 스타일 */
+.wsb-modal-content input::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* 커스텀 모드 버튼 스타일 */
+.wsb-modal-content button:not(.wsb-btn-cancel):not(.wsb-btn-confirm) {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 템플릿 불러오기 버튼 */
+.wsb-modal-content button:not(.wsb-btn-cancel):not(.wsb-btn-confirm):nth-of-type(1) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.wsb-modal-content button:not(.wsb-btn-cancel):not(.wsb-btn-confirm):nth-of-type(1):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* 인원 선택 버튼 */
+.wsb-modal-content button:not(.wsb-btn-cancel):not(.wsb-btn-confirm):nth-of-type(2) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.wsb-modal-content button:not(.wsb-btn-cancel):not(.wsb-btn-confirm):nth-of-type(2):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(245, 87, 108, 0.4);
+}
+
+/* 선택된 멤버 리스트 개선 */
+.selected-members-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 15px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.selected-members-list:empty::before {
+    content: "선택된 인원이 없습니다";
+    color: #adb5bd;
+    font-style: italic;
+    display: block;
+    text-align: center;
+    padding: 20px;
+}
+
+.selected-members-list > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.selected-members-list > div:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 2px 6px rgba(13, 110, 253, 0.15);
+    transform: translateX(4px);
+}
+
+.selected-members-list > div span {
+    font-weight: 500;
+    color: #495057;
+}
+
+.selected-members-list button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    width: 28px;
+    height: 28px;
+    line-height: 18px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-members-list button:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+}
+
+/* 스크롤바 스타일링 */
+.selected-members-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.selected-members-list::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 4px;
+}
+
+.selected-members-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #adb5bd 0%, #868e96 100%);
+    border-radius: 4px;
+}
+
+.selected-members-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #868e96 0%, #495057 100%);
+}
+
+/* 라디오 그룹 개선 */
+.wsb-radio-group {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+}
+
+.wsb-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #495057;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.wsb-radio-group label:hover {
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wsb-radio-group input[type="radio"] {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    accent-color: #0d6efd;
+}
+
+.wsb-radio-group input[type="radio"]:checked + span {
+    color: #0d6efd;
+}
+
+/* 모달 액션 버튼 개선 */
+.wsb-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+.wsb-btn-cancel {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    color: #495057;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.wsb-btn-cancel:hover {
+    background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+    border-color: #adb5bd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wsb-btn-confirm {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+}
+
+.wsb-btn-confirm:hover {
+    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.wsb-btn-confirm:active,
+.wsb-btn-cancel:active {
+    transform: translateY(0);
+}
+
+/* 모달 애니메이션 */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.wsb-modal-content {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    .wsb-radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .wsb-modal-actions {
+        flex-direction: column;
+    }
+
+    .wsb-btn-cancel,
+    .wsb-btn-confirm {
+        width: 100%;
+    }
+}

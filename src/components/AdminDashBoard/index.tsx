@@ -119,7 +119,10 @@ export const AdminDashboard: React.FC = () => {
             }
 
             const data: User[] = await res.json();
-            setUsers(data);
+            setUsers(data.map(user => ({
+                ...user,
+                deptCode: user.deptCode.replace(/\d+$/, '') // base 그룹화
+            })));
         } catch (e: any) {
             setError(e.message);
         }
@@ -137,17 +140,17 @@ export const AdminDashboard: React.FC = () => {
 
         let usersToFilter = users;
 
-        // showAllUsers가 false면 재직자만 표시
         if (!showAllUsers) {
             usersToFilter = users.filter(user => user.useFlag === '1');
         }
 
         return usersToFilter.filter(user => {
             if (!lowerCaseSearchTerm) return true;
+            const baseDeptCode = user.deptCode.replace(/\d+$/, ''); // 숫자 제외 base 코드 사용
             return (
                 user.userId.toLowerCase().includes(lowerCaseSearchTerm) ||
                 user.userName.toLowerCase().includes(lowerCaseSearchTerm) ||
-                user.deptCode.toLowerCase().includes(lowerCaseSearchTerm)
+                baseDeptCode.toLowerCase().includes(lowerCaseSearchTerm) // base로 검색
             );
         });
     }, [users, searchTerm, showAllUsers]);
@@ -255,13 +258,12 @@ export const AdminDashboard: React.FC = () => {
 
     const fetchDepartments = useCallback(async () => {
         try {
-            // 실제 부서 목록 API가 있다고 가정
-            // 없다면 기존 사용자들의 부서 코드를 활용
-            const uniqueDeptsSet = new Set(users.map(user => user.deptCode));
+            // unique 부서 코드 추출 시 숫자 제외 (base 코드로 그룹화)
+            const uniqueDeptsSet = new Set(users.map(user => user.deptCode.replace(/\d+$/, ''))); // 숫자 제거
             const uniqueDepts = Array.from(uniqueDeptsSet);
-            const depts: Department[] = uniqueDepts.map(code => ({
-                deptCode: code,
-                deptName: code // 실제로는 부서명 매핑 필요
+            const depts: Department[] = uniqueDepts.map(base => ({
+                deptCode: base, // base 코드 사용
+                deptName: base // 실제로는 /api/v1/departments/names에서 부서명 가져오도록 수정 추천
             }));
             setDepartments(depts);
         } catch (e: any) {
@@ -561,7 +563,9 @@ export const AdminDashboard: React.FC = () => {
                             <tr key={user.userId} className="admin-table-row">
                                 <td className="admin-table-cell">{user.userId}</td>
                                 <td className="admin-table-cell">{user.userName}</td>
-                                <td className="admin-table-cell">{user.deptCode}</td>
+                                <td className="admin-table-cell">
+                                    {user.deptCode.replace(/\d+$/, '')}
+                                </td>
                                 <td className="admin-table-cell">{user.jobLevel}</td>
                                 <td className="admin-table-cell">
                                 <span className={`admin-status-badge ${user.useFlag === '1' ? 'active' : 'inactive'}`}>
@@ -708,7 +712,7 @@ export const AdminDashboard: React.FC = () => {
                                     <option value="">부서 선택</option>
                                     {departments.map(dept => (
                                         <option key={dept.deptCode} value={dept.deptCode}>
-                                            {dept.deptName} ({dept.deptCode})
+                                            {dept.deptName} ({dept.deptCode.replace(/\d+$/, '')}) // base 표시
                                         </option>
                                     ))}
                                 </select>
@@ -782,7 +786,7 @@ export const AdminDashboard: React.FC = () => {
                             {deptPermissions.length > 0 ? (
                                 deptPermissions.map((permission, index) => (
                                     <tr key={`${permission.deptCode}-${permission.permissionType}-${index}`}>
-                                        <td>{permission.deptCode}</td>
+                                        <td>{permission.deptCode.replace(/\d+$/, '')}</td> // base 코드 표시
                                         <td>{formatPermissionTypes(permission.permissionType)}</td>
                                         <td>
                                             <button

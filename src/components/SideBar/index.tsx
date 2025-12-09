@@ -26,6 +26,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     const [permissions, setPermissions] = useState<string[]>([]);
     const API_BASE_URL = process.env.REACT_APP_API_URL;
     const fetchProfileData = (user_id: string) => {
+        // ✅ administrator 계정 특별 처리
+        if (user_id === 'administrator') {
+            console.log('Administrator 계정 - 프로필 조회 스킵');
+            setProfileImage(defaultProfileImage);
+            return;
+        }
+
         axios
             .get(`${API_BASE_URL}/user/${user_id}`, {
                 headers: { Authorization: `Bearer ${cookies.accessToken}` },

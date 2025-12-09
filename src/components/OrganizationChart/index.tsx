@@ -21,20 +21,28 @@ interface Employee {
 interface OrganizationChartProps {
     onUserSelect: (userId: string, userName: string, jobLevel: string) => void;
     selectedUserId?: string;
+    selectedUserIds?: string[]; // 다중 선택용 추가
+    multiSelect?: boolean; // 다중 선택 모드
+    allDepartments?: boolean;
 }
 
 const OrganizationChart: React.FC<OrganizationChartProps> = ({
                                                                  onUserSelect,
-                                                                 selectedUserId
+                                                                 selectedUserId,
+                                                                 selectedUserIds = [],
+                                                                 multiSelect = false,
+                                                                 allDepartments = false
                                                              }) => {
     const [cookies] = useCookies(['accessToken']);
     const [departments, setDepartments] = useState<Department[]>([]);
+    const [deptNames, setDeptNames] = useState<Record<string, string>>({});  // ✅ 추가
     const [employees, setEmployees] = useState<Record<string, Employee[]>>({});
     const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchDepartments();
+        fetchDepartmentNames();
     }, []);
 
     const fetchDepartments = async () => {
@@ -51,14 +59,34 @@ const OrganizationChart: React.FC<OrganizationChartProps> = ({
         }
     };
 
+    // ✅ 부서명 조회 추가
+    const fetchDepartmentNames = async () => {
+        try {
+            const response = await fetch('/api/v1/departments/names', {
+                headers: { Authorization: `Bearer ${cookies.accessToken}` }
+            });
+            const data = await response.json();
+            setDeptNames(data);
+        } catch (error) {
+            console.error('부서 이름 조회 실패:', error);
+        }
+    };
+
     const fetchEmployees = async (deptCode: string) => {
         if (employees[deptCode]) return;
 
         try {
-            const response = await fetch(
-                `/api/v1/user/department/${deptCode}`,
-                { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
-            );
+            const isBaseDept = !/\d+$/.test(deptCode);
+
+            // ✅ allDepartments prop에 따라 엔드포인트 선택
+            const endpoint = allDepartments
+                ? `/api/v1/user/department/${deptCode}/all${isBaseDept ? '?includeSubDepts=true' : ''}`
+                : `/api/v1/user/department/${deptCode}${isBaseDept ? '?includeSubDepts=true' : ''}`;
+
+            const response = await fetch(endpoint, {
+                headers: { Authorization: `Bearer ${cookies.accessToken}` }
+            });
+
             const data = await response.json();
             setEmployees(prev => ({ ...prev, [deptCode]: data }));
         } catch (error) {
@@ -70,14 +98,41 @@ const OrganizationChart: React.FC<OrganizationChartProps> = ({
         const map = new Map<string, Department>();
         const roots: Department[] = [];
 
+        // 숫자 제외 base 코드로 그룹화 (기존 로직 유지 + 강화)
+        const getBaseDeptCode = (code: string) => code.replace(/\d+$/, '');
+
+        const groupedDepts = new Map<string, Department[]>();
         depts.forEach(dept => {
-            map.set(dept.deptCode, { ...dept, children: [] });
+            const baseCode = getBaseDeptCode(dept.deptCode);
+            if (!groupedDepts.has(baseCode)) {
+                groupedDepts.set(baseCode, []);
+            }
+            groupedDepts.get(baseCode)!.push(dept); // 묶어서 포함
         });
 
-        depts.forEach(dept => {
-            const node = map.get(dept.deptCode)!;
-            if (dept.parentDeptCode) {
-                const parent = map.get(dept.parentDeptCode);
+        // ✅ 2단계: 그룹화된 부서를 대표 노드로 변환
+        groupedDepts.forEach((subDepts, baseCode) => {
+            if (subDepts.length === 1) {
+                // 단일 부서는 그대로 사용
+                const dept = subDepts[0];
+                map.set(dept.deptCode, { ...dept, children: [] });
+            } else {
+                // 여러 하위 부서가 있는 경우 대표 노드 생성
+                const representativeDept: Department = {
+                    deptCode: baseCode,
+                    deptName: subDepts[0].deptName.replace(/\d+$/, ''), // 숫자 제거
+                    parentDeptCode: subDepts[0].parentDeptCode,
+                    children: subDepts.map(d => ({ ...d, parentDeptCode: baseCode, children: [] }))
+                };
+                map.set(baseCode, representativeDept);
+            }
+        });
+
+        // ✅ 3단계: 부모-자식 관계 설정 (기존 로직 유지)
+        map.forEach((node) => {
+            if (node.parentDeptCode) {
+                const parentBase = getBaseDeptCode(node.parentDeptCode);
+                const parent = map.get(parentBase) || map.get(node.parentDeptCode);
                 if (parent) {
                     parent.children!.push(node);
                 } else {
@@ -118,6 +173,7 @@ const OrganizationChart: React.FC<OrganizationChartProps> = ({
     const renderDepartment = (dept: Department, level: number = 0) => {
         const isExpanded = expandedDepts.has(dept.deptCode);
         const deptEmployees = employees[dept.deptCode] || [];
+        const displayName = deptNames[dept.deptCode] || dept.deptCode;
 
         return (
             <div key={dept.deptCode} className="org-dept-container">
@@ -127,12 +183,12 @@ const OrganizationChart: React.FC<OrganizationChartProps> = ({
                 >
                     <div className="org-dept-header">
                         {isExpanded ? (
-                            <ChevronDown className="org-icon" />
+                            <ChevronDown className="org-icon"/>
                         ) : (
-                            <ChevronRight className="org-icon" />
+                            <ChevronRight className="org-icon"/>
                         )}
-                        <Users className="org-icon" />
-                        <span className="org-dept-name">{dept.deptName}</span>
+                        <Users className="org-icon"/>
+                        <span className="org-dept-name">{displayName}</span>
                     </div>
                 </div>
 
@@ -141,40 +197,31 @@ const OrganizationChart: React.FC<OrganizationChartProps> = ({
                         {/* 직원 목록 */}
                         {deptEmployees.length > 0 && (
                             <div className="org-employee-list">
-                                {deptEmployees.map(emp => (
-                                    <div
-                                        key={emp.userId}
-                                        className={`org-employee-item ${
-                                            selectedUserId === emp.userId ? 'selected' : ''
-                                        }`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onUserSelect(emp.userId, emp.userName, emp.jobLevel);
-                                        }}
-                                    >
-                                        <User className="org-icon" />
-                                        <div className="org-employee-info">
-                                            <span className="org-employee-name">
-                                                {emp.userName}
-                                            </span>
-                                            <span className="org-employee-position">
-                                                {getJobLevelText(emp.jobLevel)}
-                                            </span>
-                                        </div>
-                                        {selectedUserId === emp.userId && (
-                                            <span className="org-selected-badge">✓</span>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                {deptEmployees.map(emp => {
+                                    const isSelected = multiSelect
+                                        ? selectedUserIds.includes(emp.userId)
+                                        : selectedUserId === emp.userId;
 
-                        {/* 하위 부서 */}
-                        {dept.children && dept.children.length > 0 && (
-                            <div className="org-subdepts">
-                                {dept.children.map(child =>
-                                    renderDepartment(child, level + 1)
-                                )}
+                                    return (
+                                        <div
+                                            key={emp.userId}
+                                            className={`org-employee-item ${isSelected ? 'selected' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onUserSelect(emp.userId, emp.userName, emp.jobLevel);
+                                            }}
+                                        >
+                                            <User className="org-icon" />
+                                            <div className="org-employee-info">
+                                                <span className="org-employee-name">{emp.userName}</span>
+                                                <span className="org-employee-position">
+                                                    {getJobLevelText(emp.jobLevel)}
+                                                </span>
+                                            </div>
+                                            {isSelected && <span className="org-selected-badge">✓</span>}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

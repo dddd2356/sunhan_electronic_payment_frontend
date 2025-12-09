@@ -34,6 +34,7 @@ export interface WorkSchedule {
     deptCode: string;
     scheduleYearMonth: string;
     createdBy: string;
+    creatorName?: string;
     reviewerId?: string;
     approverId?: string;
     approvalStatus: 'DRAFT' | 'SUBMITTED' | 'REVIEWED' | 'APPROVED' | 'REJECTED';
@@ -49,6 +50,8 @@ export interface WorkSchedule {
     approverSignatureUrl?: string;
     approverSignedAt?: string;
     approvalSteps?: ApprovalStepInfo[];
+    isCustom?: boolean;
+    customDeptName?: string;
 }
 
 export interface WorkScheduleEntry {

@@ -188,7 +188,10 @@ const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) => {
             navigate(`/detail/employment-contract/edit/${doc.id}`);
         } else if (doc.type === 'LEAVE_APPLICATION' || doc.type === 'vacation' || doc.type === '휴가원') {
             navigate(`/detail/leave-application/edit/${doc.id}`);
-        } else {
+        } else if (doc.type === 'WORK_SCHEDULE' || doc.type === 'workSchedule' || doc.type === '근무현황표') {
+            navigate(`/detail/work-schedule/edit/${doc.id}`);
+        }
+        else {
             // fallback: 문서관리 모달 닫고 Reports 모달 유지
             console.warn('Unknown doc type, opening reports modal instead', doc.type);
             navigate(`/documents/${doc.id}`);
@@ -315,7 +318,8 @@ const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) => {
                                                         }`}>
                                                             {doc.type === 'EMPLOYMENT_CONTRACT' ? '근로계약서'
                                                                 : doc.type === 'LEAVE_APPLICATION' ? '휴가원'
-                                                                    : doc.type}
+                                                                    : doc.type === 'WORK_SCHEDULE' ? '근무현황표'
+                                                                        : doc.type}
                                                         </span>
                                                         <span className="reports-document-badge reports-document-badge-status">
                                                             {getStatusText(doc.status)}

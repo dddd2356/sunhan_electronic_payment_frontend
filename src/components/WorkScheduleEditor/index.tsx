@@ -19,6 +19,7 @@ import './style.css';
 import axios from "axios";
 import ApprovalLineSelector from "../ApprovalLineSelector";
 import RejectModal from "../RejectModal";
+import OrgChartModal from "../OrgChartModal";
 
 const WorkScheduleEditor: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -186,6 +187,72 @@ const WorkScheduleEditor: React.FC = () => {
 
         setIsGeneratingPdf(false);
         alert('PDF 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
+    };
+
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [showRemoveMemberModal, setShowRemoveMemberModal] = useState(false);
+    const [selectedEntriesForRemoval, setSelectedEntriesForRemoval] = useState<number[]>([]);
+
+// 인원 추가 핸들러
+    const handleAddMembers = (users: { id: string; name: string }[]) => {
+        const userIds = users.map(u => u.id);
+
+        // 비동기 작업은 즉시실행 async IIFE로 처리해서
+        // handleAddMembers 자체는 'void'를 반환하도록 유지
+        (async () => {
+            try {
+                await axios.post(
+                    `/api/v1/work-schedules/${id}/members`,
+                    { userIds },
+                    { headers: { Authorization: `Bearer ${cookies.accessToken}` } }
+                );
+
+                alert('인원이 추가되었습니다.');
+                setShowAddMemberModal(false);
+                await loadData(); // 데이터 새로고침
+            } catch (err: any) {
+                alert(err.response?.data?.error || '인원 추가 실패');
+            }
+        })();
+    };
+
+// 인원 삭제 토글
+    const toggleEntrySelection = (entryId: number) => {
+        setSelectedEntriesForRemoval(prev => {
+            if (prev.includes(entryId)) {
+                return prev.filter(id => id !== entryId);
+            }
+            return [...prev, entryId];
+        });
+    };
+
+    // 인원 삭제 핸들러
+    const handleRemoveMembers = async () => {
+        if (selectedEntriesForRemoval.length === 0) {
+            alert('삭제할 인원을 선택해주세요.');
+            return;
+        }
+
+        if (!window.confirm(`${selectedEntriesForRemoval.length}명을 삭제하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            await axios.delete(
+                `/api/v1/work-schedules/${id}/members`,
+                {
+                    headers: { Authorization: `Bearer ${cookies.accessToken}` },
+                    data: { entryIds: selectedEntriesForRemoval }
+                }
+            );
+
+            alert('인원이 삭제되었습니다.');
+            setShowRemoveMemberModal(false);
+            setSelectedEntriesForRemoval([]);
+            await loadData(); // 데이터 새로고침
+        } catch (err: any) {
+            alert(err.response?.data?.error || '인원 삭제 실패');
+        }
     };
 
     useEffect(() => {
@@ -653,6 +720,7 @@ const WorkScheduleEditor: React.FC = () => {
             //서버의 JSON 문자열을 객체로 변환 (새로고침 시 데이터 유지용)
             const parsedEntries = detail.entries.map((entry: any) => ({
                 ...entry,
+                userName: entry.userName,
                 // workDataJson이 있으면 파싱하고, 없으면 빈 객체 할당
                 workData: entry.workDataJson ? JSON.parse(entry.workDataJson) : {}
             }));
@@ -1465,7 +1533,7 @@ const WorkScheduleEditor: React.FC = () => {
                         </thead>
                         <tbody>
                         {entries.map((entry, idx) => {
-                            const user = users[entry.userId];
+                            const user = users[entry.userId] || { userName: entry.userName || entry.userId };
                             const position = positions.find(p => p.id === entry.positionId);
                             const isLongTextMode = entry.workData?.['rowType'] === 'longText';
 
@@ -1498,7 +1566,7 @@ const WorkScheduleEditor: React.FC = () => {
                                             position?.positionName || '-'
                                         )}
                                     </td>
-                                    <td>{user?.userName || entry.userId}</td>
+                                    <td>{user?.userName || entry.userName || entry.userId}</td>
 
                                     {/* 일별 근무 */}
                                     {isLongTextMode ? (
@@ -1581,6 +1649,61 @@ const WorkScheduleEditor: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+
+                {isEditable && (
+                    <div className="member-management-buttons">
+                        <button onClick={() => setShowAddMemberModal(true)}>
+                            + 인원 추가
+                        </button>
+                        <button onClick={() => setShowRemoveMemberModal(true)}>
+                            - 인원 삭제
+                        </button>
+                    </div>
+                )}
+
+                {showAddMemberModal && (
+                    <OrgChartModal
+                        isOpen={showAddMemberModal}
+                        onClose={() => setShowAddMemberModal(false)}
+                        onSelect={handleAddMembers}
+                        multiSelect={true}
+                        allDepartments={true}
+                    />
+                )}
+
+
+                {showRemoveMemberModal && (
+                    <div className="remove-member-modal">
+                        {entries.map(entry => (
+                            <label key={entry.id}>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedEntriesForRemoval.includes(entry.id)}
+                                    onChange={() => toggleEntrySelection(entry.id)}
+                                />
+                                {entry.userId} - {users[entry.userId]?.userName}
+                            </label>
+                        ))}
+                        <div className="remove-member-modal-actions">
+                            <button
+                                className="remove-member-cancel-btn"
+                                onClick={() => {
+                                    setShowRemoveMemberModal(false);
+                                    setSelectedEntriesForRemoval([]);
+                                }}
+                            >
+                                취소
+                            </button>
+                            <button
+                                className="remove-member-delete-btn"
+                                onClick={handleRemoveMembers}
+                            >
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* 하단 비고 */}
                 <div className="wse-bottom-remarks">

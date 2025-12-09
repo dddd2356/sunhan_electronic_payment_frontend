@@ -51,11 +51,20 @@ interface VacationStatus {
 }
 
 interface RecentActivity {
-    type: 'vacation' | 'contract';
+    type: 'vacation' | 'contract' | 'workSchedule';
     id: number;
     title: string;
     date: string;
     status: string; // '진행중', '완료', '반려/취소' 등 단순화된 상태
+}
+
+interface WorkScheduleStatus {
+    id: number;
+    title: string;
+    status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+    createdAt: string;
+    updatedAt: string;
+    scheduleYearMonth?: string; // "YYYY-MM" 형식
 }
 
 const MainPage: React.FC = () => {
@@ -97,7 +106,9 @@ const MainPage: React.FC = () => {
     const mapStatusToSimpleKorean = (status: string): string => {
         switch (status) {
             case 'DRAFT':
+                return '작성중';
             case 'SENT_TO_EMPLOYEE':
+            case 'SUBMITTED':
             case 'PENDING_SUBSTITUTE':
             case 'PENDING_DEPT_HEAD':
             case 'PENDING_CENTER_DIRECTOR':
@@ -309,6 +320,11 @@ const MainPage: React.FC = () => {
                 });
                 const contractData: ContractStatus[] = contractResponse.ok ? await contractResponse.json() : [];
 
+                const workScheduleResponse = await fetch(`/api/v1/work-schedules/my-status`, {
+                    headers: { 'Authorization': `Bearer ${cookies.accessToken}` }
+                });
+                const workScheduleData: WorkScheduleStatus[] = workScheduleResponse.ok ? await workScheduleResponse.json() : [];
+
                 // 데이터 통합 및 상태 매핑
                 const formattedVacations: RecentActivity[] = vacationData.map(v => ({
                     type: 'vacation',
@@ -326,8 +342,16 @@ const MainPage: React.FC = () => {
                     status: mapStatusToSimpleKorean(c.status)
                 }));
 
+                const formattedWorkSchedules: RecentActivity[] = workScheduleData.map(w => ({
+                    type: 'workSchedule',
+                    id: w.id,
+                    title: '근무현황표',
+                    date: w.updatedAt,
+                    status: mapStatusToSimpleKorean(w.status)
+                }));
+
                 // 모든 활동을 합쳐서 최신순으로 3개만 선택
-                const combinedActivities = [...formattedVacations, ...formattedContracts]
+                const combinedActivities = [...formattedVacations, ...formattedContracts,  ...formattedWorkSchedules ]
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .slice(0, 3);
 
