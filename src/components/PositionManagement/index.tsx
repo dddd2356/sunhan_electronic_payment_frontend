@@ -38,8 +38,9 @@ const PositionManagement: React.FC = () => {
 
             const hasCreatePermission = permissions.includes('WORK_SCHEDULE_CREATE');
             const isSuperAdmin = parseInt(userData.jobLevel) === 6;
+            const isAdmin = userData.role === 'ADMIN';
 
-            if (!hasCreatePermission && !isSuperAdmin) {
+            if (!hasCreatePermission && !isSuperAdmin && !isAdmin) {
                 alert('직책 관리 권한이 없습니다.');
                 navigate('/detail/main-page');
                 return;

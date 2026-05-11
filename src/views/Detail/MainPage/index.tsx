@@ -107,7 +107,7 @@ const MainPage: React.FC = () => {
     const [showProfilePopup, setShowProfilePopup] = useState(false);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
-    const [fetchError, setFetchError] = useState('');
+    const [, setFetchError] = useState('');
     const [currentTime] = useState(new Date());
 
     const [vacationStatus, setVacationStatus] = useState<VacationStatus | null>(null);
@@ -472,7 +472,7 @@ const MainPage: React.FC = () => {
     // 연차 계산기
     const total = vacationStatus?.totalVacationDays || 15;
     const used = vacationStatus?.usedVacationDays || 0;
-    const remaining = vacationStatus?.remainingVacationDays || total;
+
     const usagePercent = total > 0 ? (used / total) * 100 : 0;
 
     if (loadingUser) {

@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
     const canViewContractMemoAdmin = permissions.includes('HR_CONTRACT') || jobLevel === 6;
     const canViewVacationAdmin = permissions.includes('HR_LEAVE_APPLICATION') || jobLevel === 6;
-    const canCreatePositionAdmin = jobLevel === 6 || permissions.includes("WORK_SCHEDULE_CREATE");
+    const canCreatePositionAdmin = isAdmin || jobLevel === 6 || permissions.includes("WORK_SCHEDULE_CREATE");
     const canViewUserManageAdmin = permissions.includes('MANAGE_USERS') || jobLevel === 6;
 
     return (
