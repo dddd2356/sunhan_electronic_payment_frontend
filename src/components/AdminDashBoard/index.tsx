@@ -1241,7 +1241,6 @@ export const AdminDashboard: React.FC = () => {
                                     ⚠️ 다음 데이터가 삭제됩니다:
                                 </h4>
                                 <ul style={{margin: 0, paddingLeft: '1.25rem', fontSize: '0.8rem', color: '#7F1D1D', lineHeight: '1.6'}}>
-                                    <li>사용자 정보 및 권한</li>
                                     <li>근로계약서</li>
                                     <li>휴가신청서 및 첨부파일</li>
                                     <li>근무현황표 및 상세 데이터</li>
@@ -1293,7 +1292,6 @@ export const AdminDashboard: React.FC = () => {
                                         <div style={{fontSize: '0.75rem', color: '#166534', lineHeight: '1.5'}}>
                                             <p style={{margin: '0 0 0.5rem 0', fontWeight: 600}}>
                                                 총 삭제: {
-                                                testDataResult.userCount +
                                                 testDataResult.employmentContractCount +
                                                 testDataResult.leaveApplicationCount +
                                                 testDataResult.leaveApplicationDayCount +
@@ -1308,13 +1306,10 @@ export const AdminDashboard: React.FC = () => {
                                                 testDataResult.deptDutyConfigCount +
                                                 testDataResult.approvalLineCount +
                                                 testDataResult.approvalStepCount +
-                                                testDataResult.positionCount +
-                                                testDataResult.userPermissionCount
+                                                testDataResult.positionCount
                                             }건
                                             </p>
                                             <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.25rem'}}>
-                                                <span>• 사용자: {testDataResult.userCount}개</span>
-                                                <span>• 권한: {testDataResult.userPermissionCount}개</span>
                                                 <span>• 근로계약서: {testDataResult.employmentContractCount}개</span>
                                                 <span>• 휴가신청서: {testDataResult.leaveApplicationCount}개</span>
                                                 <span>• 휴가 상세: {testDataResult.leaveApplicationDayCount}개</span>
