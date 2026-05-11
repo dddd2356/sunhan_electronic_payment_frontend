@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
 import Layout from '../Layout';
 import {
-    fetchWorkScheduleDetail,
-    updateWorkData,
-    updateNightRequired,
-    WorkScheduleDetail,
-    WorkScheduleEntry,
     ApprovalStepInfo,
-    DeptDutyConfig, copyFromSpecificMonth, toggleFinalApproval
+    copyFromSpecificMonth,
+    DeptDutyConfig,
+    fetchWorkScheduleDetail,
+    toggleFinalApproval,
+    updateWorkData,
+    WorkScheduleDetail,
+    WorkScheduleEntry
 } from '../../apis/workSchedule';
-import { fetchPositionsByDept, Position } from '../../apis/Position';
+import {fetchPositionsByDept, Position} from '../../apis/Position';
 import './style.css';
 import axiosInstance from "../../views/Authentication/axiosInstance";
 import ApprovalLineSelector from "../ApprovalLineSelector";
 import RejectModal from "../RejectModal";
-import OrganizationChart from "../OrganizationChart";
-import { toSafeDataUrl } from '../../utils/imageUtils';
+import {toSafeDataUrl} from '../../utils/imageUtils';
 import OrgChartModal from "../OrgChartModal";
 
 interface TextRange {
@@ -33,6 +33,7 @@ const WorkScheduleEditor: React.FC = () => {
     const [positions, setPositions] = useState<Position[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const dismissedWarningsRef = useRef<Set<string>>(new Set());
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [isFinalApproved, setIsFinalApproved] = useState(false);
     // 선택된 셀 관리
@@ -207,11 +208,11 @@ const WorkScheduleEditor: React.FC = () => {
             // 200: 다운로드
             if (response.status === 200 && response.data instanceof Blob && response.data.size > 0) {
                 // ✅ 동의서 방식으로 변경
-                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const blob = new Blob([response.data], { type: 'application/octet-stream' });
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.target = '_blank';  // ✅ 새 탭에서 열기
+                link.download = `work_schedule_${schedule?.deptCode ?? ''}_${schedule?.scheduleYearMonth?.replace('-', '') ?? ''}.pdf`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -238,11 +239,11 @@ const WorkScheduleEditor: React.FC = () => {
 
                 if (response.status === 200 && response.data instanceof Blob && response.data.size > 0) {
                     // ✅ 동의서 방식으로 변경
-                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const blob = new Blob([response.data], { type: 'application/octet-stream' });
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.target = '_blank';
+                    link.download = `work_schedule_${schedule?.deptCode ?? ''}_${schedule?.scheduleYearMonth?.replace('-', '') ?? ''}.pdf`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1111,8 +1112,10 @@ const WorkScheduleEditor: React.FC = () => {
 
             // ✅ 연속 패턴 검사
             const warnings = checkConsecutivePattern(updatedWorkData);
-            if (warnings.length > 0) {
-                alert(`⚠️ 경고:\n${warnings.join('\n')}`);
+            const newWarnings = warnings.filter(w => !dismissedWarningsRef.current.has(w));
+            if (newWarnings.length > 0) {
+                alert(`⚠️ 경고:\n${newWarnings.join('\n')}`);
+                newWarnings.forEach(w => dismissedWarningsRef.current.add(w));
             }
 
             const stats = calculateEntryStatistics(updatedWorkData);
@@ -1758,34 +1761,31 @@ const WorkScheduleEditor: React.FC = () => {
 
 
                 {/* 근무 타입 버튼 (편집 가능할 때만) */}
-                {isEditable && selectedCells.size > 0 && (
+                {isEditable && (
                     <div className="wse-work-type-buttons">
-                        <button onClick={() => applyWorkType('D')} className="wse-btn-work-type wse-btn-d">D</button>
-                        <button onClick={() => applyWorkType('D1')} className="wse-btn-work-type wse-btn-d1">D1</button>
-                        <button onClick={() => applyWorkType('N')} className="wse-btn-work-type wse-btn-n">N</button>
-                        <button onClick={() => applyWorkType('E')} className="wse-btn-work-type wse-btn-e">E</button>
-                        <button onClick={() => applyWorkType('A')} className="wse-btn-work-type wse-btn-a">A</button>
-                        <button onClick={() => applyWorkType('B')} className="wse-btn-work-type wse-btn-b">B</button>
-                        <button onClick={() => applyWorkType('F')} className="wse-btn-work-type wse-btn-f">F</button>
-                        <button onClick={() => applyWorkType('HD')} className="wse-btn-work-type wse-btn-half">HD
-                        </button>
-                        <button onClick={() => applyWorkType('HE')} className="wse-btn-work-type wse-btn-half">HE
-                        </button>
-                        <button onClick={() => applyWorkType('HN')} className="wse-btn-work-type wse-btn-half">HN
-                        </button>
-                        <button onClick={() => applyWorkType('Off')} className="wse-btn-work-type wse-btn-off">Off
-                        </button>
-                        <button onClick={() => applyWorkType('연')} className="wse-btn-work-type wse-btn-leave">연차
-                        </button>
-                        <button onClick={() => applyWorkType('반차')} className="wse-btn-work-type wse-btn-half">반차
-                        </button>
-                        <button onClick={() => applyWorkType('대')} className="wse-btn-work-type wse-btn-대">대</button>
-                        <button onClick={() => applyWorkType('')} className="wse-btn-work-type wse-btn-clear">지우기</button>
-                        <button onClick={toggleCellRangeTextMode} className="wse-btn-work-type"
+                        <button onClick={() => applyWorkType('D')} className="wse-btn-work-type wse-btn-d" disabled={selectedCells.size === 0}>D</button>
+                        <button onClick={() => applyWorkType('D1')} className="wse-btn-work-type wse-btn-d1" disabled={selectedCells.size === 0}>D1</button>
+                        <button onClick={() => applyWorkType('N')} className="wse-btn-work-type wse-btn-n" disabled={selectedCells.size === 0}>N</button>
+                        <button onClick={() => applyWorkType('E')} className="wse-btn-work-type wse-btn-e" disabled={selectedCells.size === 0}>E</button>
+                        <button onClick={() => applyWorkType('A')} className="wse-btn-work-type wse-btn-a" disabled={selectedCells.size === 0}>A</button>
+                        <button onClick={() => applyWorkType('B')} className="wse-btn-work-type wse-btn-b" disabled={selectedCells.size === 0}>B</button>
+                        <button onClick={() => applyWorkType('F')} className="wse-btn-work-type wse-btn-f" disabled={selectedCells.size === 0}>F</button>
+                        <button onClick={() => applyWorkType('HD')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>HD</button>
+                        <button onClick={() => applyWorkType('HE')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>HE</button>
+                        <button onClick={() => applyWorkType('HN')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>HN</button>
+                        <button onClick={() => applyWorkType('Off')} className="wse-btn-work-type wse-btn-off" disabled={selectedCells.size === 0}>Off</button>
+                        <button onClick={() => applyWorkType('연')} className="wse-btn-work-type wse-btn-leave" disabled={selectedCells.size === 0}>연차</button>
+                        <button onClick={() => applyWorkType('반차')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size ===
+                            0}>반차</button>
+                        <button onClick={() => applyWorkType('대')} className="wse-btn-work-type wse-btn-대" disabled={selectedCells.size === 0}>대</button>
+                        <button onClick={() => applyWorkType('')} className="wse-btn-work-type wse-btn-clear" disabled={selectedCells.size === 0}>지우기</button>
+                        <button onClick={toggleCellRangeTextMode} className="wse-btn-work-type" disabled={selectedCells.size === 0}
                                 style={{backgroundColor: '#6c757d', color: 'white'}}>
                             텍스트/셀 전환
                         </button>
-                        <span className="wse-selected-count">{selectedCells.size}개 선택됨</span>
+                        <span className="wse-selected-count">
+                          {selectedCells.size > 0 ? `${selectedCells.size}개 선택됨` : '셀을 선택하세요'}
+                      </span>
                     </div>
                 )}
 

@@ -120,6 +120,12 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+.wse-btn-work-type:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .wse-btn-d    { background-color: #3B82F6; } /* 파랑 — 주간 D */
 .wse-btn-d1   { background-color: #0EA5E9; } /* 하늘 — 주간 D1, D와 구별 */
 .wse-btn-n    { background-color: #8B5CF6; } /* 보라 — 야간 N */
