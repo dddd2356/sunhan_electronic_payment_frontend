@@ -165,3 +165,11 @@ export const copyFromSpecificMonth = async (
 ): Promise<void> => {
     await axiosInstance.post(`${API_BASE}/${scheduleId}/copy-from`, { sourceYearMonth });
 };
+
+/**
+ * 반려된 근무현황표 페이지
+ */
+export const fetchRejectedWorkSchedules = async () => {
+    const response = await axiosInstance.get(`${API_BASE}/rejected`);
+    return response.data; // 배열 반환
+};

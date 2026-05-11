@@ -1,7 +1,13 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout';
-import {fetchMyWorkSchedules, createWorkSchedule, WorkSchedule, fetchWorkScheduleDetail} from '../../apis/workSchedule';
+import {
+    fetchMyWorkSchedules,
+    createWorkSchedule,
+    WorkSchedule,
+    fetchWorkScheduleDetail,
+    fetchRejectedWorkSchedules
+} from '../../apis/workSchedule';
 import './style.css';
 import OrgChartModal from "../OrgChartModal";
 import axiosInstance from "../../views/Authentication/axiosInstance";
@@ -15,7 +21,7 @@ const WorkScheduleBoard: React.FC = () => {
     const [selectedYearMonth, setSelectedYearMonth] = useState('');
     const [canCreate, setCanCreate] = useState(false);
     const [hasApprovalPermission, setHasApprovalPermission] = useState(false); // ✅ 결재 권한 (pending 탭 표시용)
-    const [tab, setTab] = useState<'my-drafts' | 'pending' | 'all-in-progress' | 'completed' | null>(null);
+    const [tab, setTab] = useState<'my-drafts' | 'pending' | 'all-in-progress' | 'completed' | 'rejected'>('my-drafts');
     const [canManage, setCanManage] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -86,7 +92,8 @@ const WorkScheduleBoard: React.FC = () => {
         try {
             const permRes = await fetch('/api/v1/user/me/permissions', { credentials: 'include' });
             const permData = await permRes.json();
-            const hasCreatePermission = permData.permissions?.includes('WORK_SCHEDULE_CREATE') ?? false;
+            const isAdmin = permData.role === 'ADMIN';
+            const hasCreatePermission = isAdmin && (permData.permissions?.includes('WORK_SCHEDULE_CREATE') ?? false);
             const hasManagePermission = permData.permissions?.includes('WORK_SCHEDULE_MANAGE') ?? false;
             setCanCreate(hasCreatePermission);
             setCanManage(hasManagePermission);
@@ -142,6 +149,10 @@ const WorkScheduleBoard: React.FC = () => {
             } else if (tab === 'all-in-progress') {
                 const response = await axiosInstance.get('/work-schedules/pending');
                 setSchedules(response.data);
+            } else if (tab === 'rejected') {
+                const data = await fetchRejectedWorkSchedules();
+                setSchedules(data);
+                return;
             }
 
         } catch (err: any) {
@@ -289,6 +300,13 @@ const WorkScheduleBoard: React.FC = () => {
                             전체 진행중
                         </button>
                     )}
+
+                    <button
+                        onClick={() => setTab('rejected')}
+                        className={tab === 'rejected' ? 'active' : ''}
+                    >
+                        반려된 근무현황표
+                    </button>
 
                     <button
                         onClick={() => {
