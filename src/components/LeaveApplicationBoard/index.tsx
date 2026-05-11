@@ -4,7 +4,9 @@ import Layout from "../Layout";
 import {
     createLeaveApplication,
     fetchCurrentUser as apiFetchCurrentUser,
-    fetchLeaveApplications
+    fetchLeaveApplications,
+    fetchAllPendingApplications,
+    fetchRejectedApplications
 } from '../../apis/leaveApplications';
 import dayjs from "dayjs";
 import {useNavigate} from "react-router-dom";
@@ -48,7 +50,7 @@ const LeaveApplicationBoard: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>('');
-    const [tab, setTab] = useState<'my' | 'pending' | 'allPending' |'completed'>('my');
+    const [tab, setTab] = useState<'my' | 'pending' | 'allPending' | 'rejected' |'completed'>('my');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchType, setSearchType] = useState<'applicant'|'substitute'|'status'>('applicant');
     const [hasHrLeavePermission, setHasHrLeavePermission] = useState(false);
@@ -64,6 +66,8 @@ const LeaveApplicationBoard: React.FC = () => {
                 return '승인 대기 검색...';
             case 'allPending':
                 return '전체 진행중 검색...';
+            case 'rejected':
+                return '반려된 휴가원 검색...';
             case 'completed':
                 return '완료된 휴가원 검색...';
             default:
@@ -345,24 +349,19 @@ const LeaveApplicationBoard: React.FC = () => {
 
             // ✅ pending 탭에서 HR 권한자는 전체 조회 API 사용
             if (tab === 'allPending' && hasHrLeavePermission) {
-                const res = await fetch(
-                    `/api/v1/leave-application/pending/all?page=${apiPage}&size=${itemsPerPage}`
-                    + `&searchTerm=${encodeURIComponent(term)}&searchType=${searchType}`
-                    + `${startDate ? `&startDate=${startDate}` : ''}`
-                    + `${endDate ? `&endDate=${endDate}` : ''}`,
-                    { credentials: 'include' }
+                const data = await fetchAllPendingApplications(
+                    apiPage, itemsPerPage, term, searchType, startDate, endDate
                 );
-                const raw = await res.json();
+                setPaginationData(data);
+                setApplications(data.content);
+                return;
+            }
 
-                // ✅ 기존 탭과 동일한 형태로 변환
-                const data: PaginationData = {
-                    content: raw.content || [],
-                    totalElements: raw.totalElements,
-                    totalPages: raw.totalPages,
-                    currentPage: raw.number,  // Spring의 number → currentPage로 매핑
-                    size: raw.size,
-                };
-
+            // ✅ rejected 탭: HR 권한자는 전체, 일반 사용자는 본인 것만 (서버에서 처리)
+            if (tab === 'rejected') {
+                const data = await fetchRejectedApplications(
+                    apiPage, itemsPerPage, term, searchType, startDate, endDate
+                );
                 setPaginationData(data);
                 setApplications(data.content);
                 return;
@@ -386,8 +385,7 @@ const LeaveApplicationBoard: React.FC = () => {
             if (tab === 'my') {
                 filtered = data.content.filter((app: LeaveApplication) =>
                     app.status === 'DRAFT' ||
-                    app.status.startsWith('PENDING') ||
-                    app.status === 'REJECTED'
+                    app.status.startsWith('PENDING')
                 );
             }
 
@@ -552,6 +550,13 @@ const LeaveApplicationBoard: React.FC = () => {
                             전체 진행중
                         </button>
                     )}
+
+                    <button
+                        onClick={() => { setTab('rejected'); setCurrentPage(1); }}
+                        className={tab === 'rejected' ? 'active' : ''}
+                    >
+                        반려된 휴가원
+                    </button>
 
                     {/* 완료된 휴가원: 모든 사용자에게 보여주기 */}
                     <button

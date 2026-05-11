@@ -71,18 +71,70 @@ export const fetchLeaveApplications = async (
     } as PaginationResponse;
 };
 
-// 휴가원 상세 조회
-export const fetchLeaveApplicationDetail = async (id: number) => {
-    const response = await fetch(`${API_BASE}/leave-application/${id}`, {
+// 전체 진행중 휴가원 조회 (HR 권한자용)
+export const fetchAllPendingApplications = async (
+    page: number = 0,
+    size: number = 10,
+    searchTerm: string = '',
+    searchType: string = 'applicant',
+    startDate: string = '',
+    endDate: string = ''
+): Promise<PaginationResponse> => {
+    const path = `${API_BASE}/leave-application/pending/all?page=${page}&size=${size}`
+        + `&searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`
+        + `${startDate ? `&startDate=${startDate}` : ''}`
+        + `${endDate ? `&endDate=${endDate}` : ''}`;
+
+    const response = await fetch(path, {
         headers: defaultHeaders,
         credentials: 'include'
     });
 
     if (!response.ok) {
-        throw new Error('휴가원 상세 정보를 불러올 수 없습니다.');
+        throw new Error('전체 진행중 휴가원 목록을 불러올 수 없습니다.');
     }
 
-    return response.json();
+    const data = await response.json();
+    return {
+        content: data.content || [],
+        totalElements: data.totalElements,
+        totalPages: data.totalPages,
+        currentPage: data.number,
+        size: data.size
+    } as PaginationResponse;
+};
+
+// 반려된 휴가원 조회 (HR 권한자: 전체 / 일반: 본인)
+export const fetchRejectedApplications = async (
+    page: number = 0,
+    size: number = 10,
+    searchTerm: string = '',
+    searchType: string = 'applicant',
+    startDate: string = '',
+    endDate: string = ''
+): Promise<PaginationResponse> => {
+    const path = `${API_BASE}/leave-application/rejected?page=${page}&size=${size}`
+        + `&searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`
+        + `${startDate ? `&startDate=${startDate}` : ''}`
+        + `${endDate ? `&endDate=${endDate}` : ''}`;
+
+    const response = await fetch(path, {
+        headers: defaultHeaders,
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error('반려된 휴가원 목록을 불러올 수 없습니다.');
+    }
+
+    const data = await response.json();
+    return {
+        content: data.content || [],
+        totalElements: data.totalElements,
+        totalPages: data.totalPages,
+        currentPage: data.number,
+        size: data.size
+    } as PaginationResponse;
 };
 
 // 새 휴가원 생성
@@ -134,23 +186,6 @@ export const saveLeaveApplication = async (id: number, updateData: any) => {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData.error || `HTTP ${response.status}: 휴가원 저장에 실패했습니다.`;
         throw new Error(errorMessage);
-    }
-
-    return response.json();
-};
-
-// 휴가원 제출
-export const submitLeaveApplication = async (id: number, currentApprovalStep: string) => {
-    const response = await fetch(`${API_BASE}/leave-application/${id}/submit`, {
-        method: 'POST',
-        headers: defaultHeaders,
-        credentials: 'include',
-        body: JSON.stringify({ currentApprovalStep })
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || '휴가원 제출에 실패했습니다.');
     }
 
     return response.json();
@@ -217,22 +252,6 @@ export const deleteLeaveApplication = async (id: number) => {
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || '휴가원 삭제에 실패했습니다.');
-    }
-
-    return response.json();
-};
-
-// 대직자 지정
-export const updateSubstitute = async (id: number, substituteUserId: string) => {
-    const response = await fetch(`${API_BASE}/leave-application/${id}/substitute`, {
-        method: 'PUT',
-        headers: defaultHeaders,
-        credentials: 'include',
-        body: JSON.stringify({ userId: substituteUserId })
-    });
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || '대직자 지정에 실패했습니다.');
     }
 
     return response.json();
@@ -375,79 +394,4 @@ export const downloadAttachmentApi = async (attachmentId: number) => {
     }
 
     return response.blob();
-};
-
-// 날짜 범위로 완료된 휴가원 검색
-export const searchCompletedApplications = async (
-    startDate: string,
-    endDate: string,
-    page: number = 0,
-    size: number = 10
-): Promise<PaginationResponse> => {
-    const response = await fetch(
-        `${API_BASE}/leave-application/completed/search?startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`,
-        {
-            headers: defaultHeaders,
-            credentials: 'include'
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error('날짜 범위 검색에 실패했습니다.');
-    }
-
-    const data = await response.json();
-    const totalCount = response.headers.get('X-Total-Count');
-
-    return {
-        content: data.content || data,
-        totalElements: totalCount ? parseInt(totalCount) : 0,
-        totalPages: data.totalPages || 1,
-        currentPage: page,
-        size: size
-    };
-};
-
-// 내 휴가원 검색
-export const searchMyApplications = async (
-    startDate: string,
-    endDate: string,
-    page: number = 0,
-    size: number = 10
-) => {
-    const url = `${API_BASE}/leave-application/my/search?startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`;
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: defaultHeaders,
-        credentials: 'include'
-    });
-
-    if (!response.ok) {
-        throw new Error('내 휴가원 검색에 실패했습니다.');
-    }
-
-    return await response.json();
-};
-
-// 승인 대기 검색
-export const searchPendingApplications = async (
-    startDate: string,
-    endDate: string,
-    page: number = 0,
-    size: number = 10
-) => {
-    const response = await fetch(
-        `${API_BASE}/leave-application/pending/search?startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`,
-        {
-            method: 'GET',
-            headers: defaultHeaders,
-            credentials: 'include'
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error('승인 대기 검색에 실패했습니다.');
-    }
-
-    return await response.json();
 };
