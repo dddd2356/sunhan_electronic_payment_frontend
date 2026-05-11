@@ -1,26 +1,27 @@
-import React, {useState, useCallback, useEffect, useMemo, useRef} from "react";
-import { useParams, useNavigate } from 'react-router-dom';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useNavigate, useParams} from 'react-router-dom';
 import axios from 'axios';
 import axiosInstance from '../../../views/Authentication/axiosInstance';
 import './style.css';
 import Layout from "../../../components/Layout";
-import {  updateLeaveApplicationSignature, fetchUserSignatureFromDB } from '../../../apis/signatures'
+import {fetchUserSignatureFromDB, updateLeaveApplicationSignature} from '../../../apis/signatures'
 import {
-    approveLeaveApplication, fetchLeaveApplicationDetail, fetchLeaveApplicationSignatures, finalApproveLeaveApplication,
+    approveLeaveApplication,
+    fetchLeaveApplicationSignatures,
+    finalApproveLeaveApplication,
     rejectLeaveApplication,
-    saveLeaveApplication,
-    signLeaveApplication, submitLeaveApplication
+    saveLeaveApplication
 } from '../../../apis/leaveApplications'; // <-- import 경로 확인 및 추가 (e.g. `../../../apis/leaveApplications`)
-import { SignatureData } from "../../../types/signature";
-import { SignatureState } from "../../../types/signature";
+import {SignatureData, SignatureState} from "../../../types/signature";
 import dayjs from 'dayjs'; // 날짜 계산을 위해 dayjs 라이브러리 추가
 import isBetween from 'dayjs/plugin/isBetween'; // 플러그인 추가
 import RejectModal from '../../../components/RejectModal';
 import LeaveAttachments from "../../../components/LeaveAttachments";
 import ApprovalLineSelector from "../../../components/ApprovalLineSelector";
 import OrganizationChart from "../../../components/OrganizationChart";
-import { Document, Page, pdfjs } from 'react-pdf';
+import {Document, Page, pdfjs} from 'react-pdf';
 import {repairPngDataUrl, toSafeDataUrl} from '../../../utils/imageUtils';
+
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 dayjs.extend(isBetween);
 
@@ -1087,7 +1088,12 @@ const LeaveApplication = () => {
 
         } catch (error: any) {
             console.error(`휴가원 ${action === 'approve' ? '승인' : '반려'} 실패:`, error);
-            alert(`오류: ${error.message}`);
+            if (axios.isAxiosError(error)) {
+                const errorMessage = error.response?.data?.error || error.message;
+                alert(`오류: ${errorMessage}`);
+            } else {
+                alert(`오류: ${error.message}`);
+            }
         } finally {
             setIsApproving(false);
         }
@@ -2073,6 +2079,15 @@ return (
                                 </Document>
                             </>
                         )}
+                        {/* 첨부파일 (완료된 휴가원에서도 표시) */}
+                        <div style={{ marginTop: '20px', textAlign: 'left', maxWidth: '600px', margin: '20px auto 0' }}>
+                            <LeaveAttachments
+                                leaveApplicationId={leaveApplication.id}
+                                initialAttachments={memoizedAttachments}
+                                disabled={true}
+                                readOnly={true}
+                            />
+                        </div>
                         {/* 버튼 */}
                         <div style={{ marginTop: '20px' }}>
                             <button onClick={goToList} className="btn-list">목록으로</button>
