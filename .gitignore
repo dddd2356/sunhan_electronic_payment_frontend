@@ -24,3 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 
 /src/views/Detail/EmploymentContract/assets/images
+
+# IDE
+.idea/
+
+# Claude Code 로컬 설정
+.claude/
