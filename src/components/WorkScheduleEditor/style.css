@@ -132,6 +132,7 @@
 .wse-btn-e    { background-color: #F97316; } /* 주황 — 이브닝 E */
 .wse-btn-half { background-color: #06B6D4; } /* 청록 — 반일 HD/HE/HN/반차 */
 .wse-btn-off  { background-color: #10B981; } /* 초록 — Off */
+.wse-btn-유휴 { background-color: #F59E0B; }
 .wse-btn-leave { background-color: #EF4444; } /* 빨강 — 연차 */
 .wse-btn-clear { background-color: #6B7280; } /* 회색 — 지우기 */
 .wse-btn-a { background-color: #14B8A6; }    /* 틸 — A */
@@ -150,6 +151,7 @@
 .wse-btn-e:hover    { background-color: #EA580C; }
 .wse-btn-half:hover { background-color: #0891B2; }
 .wse-btn-off:hover  { background-color: #059669; }
+.wse-btn-유휴:hover { background-color: #D97706; }
 .wse-btn-leave:hover { background-color: #DC2626; }
 .wse-btn-clear:hover { background-color: #4B5563; }
 .wse-btn-a:hover { background-color: #0D9488; }

@@ -671,15 +671,26 @@ const WorkScheduleEditor: React.FC = () => {
             newWorkData[rangeKey] = `텍스트:${text}`;
 
             // 개별 날짜 키는 삭제 (중복 방지)
-            sortedDays.forEach(day => {
+            for (let day = startDay; day <= endDay; day++) {
                 delete newWorkData[day.toString()];
-            });
+            }
 
+            const stats = calculateEntryStatistics(newWorkData);
             setScheduleData({
                 ...scheduleData,
-                entries: scheduleData.entries.map(e =>
-                    e.id === entryId ? { ...e, workData: newWorkData } : e
-                )
+                entries: scheduleData.entries.map(e => {
+                    if (e.id !== entryId) return e;
+                    return {
+                        ...e,
+                        workData: newWorkData,
+                        nightDutyActual: stats.nightCount,
+                        nightDutyAdditional: stats.nightCount - (e.nightDutyRequired || 0),
+                        offCount: stats.offCount,
+                        vacationUsedTotal: (e.vacationUsedTotal || 0) - (e.vacationUsedThisMonth || 0) + stats.vacationCount,
+                        vacationUsedThisMonth: stats.vacationCount,
+                        dutyDetailJson: stats.dutyDetail ? JSON.stringify(stats.dutyDetail) : e.dutyDetailJson
+                    };
+                })
             });
         });
 
@@ -1774,9 +1785,9 @@ const WorkScheduleEditor: React.FC = () => {
                         <button onClick={() => applyWorkType('HE')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>HE</button>
                         <button onClick={() => applyWorkType('HN')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>HN</button>
                         <button onClick={() => applyWorkType('Off')} className="wse-btn-work-type wse-btn-off" disabled={selectedCells.size === 0}>Off</button>
+                        <button onClick={() => applyWorkType('유휴')} className="wse-btn-work-type wse-btn-유휴" disabled={selectedCells.size === 0}>유휴</button>
                         <button onClick={() => applyWorkType('연')} className="wse-btn-work-type wse-btn-leave" disabled={selectedCells.size === 0}>연차</button>
-                        <button onClick={() => applyWorkType('반차')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size ===
-                            0}>반차</button>
+                        <button onClick={() => applyWorkType('반차')} className="wse-btn-work-type wse-btn-half" disabled={selectedCells.size === 0}>반차</button>
                         <button onClick={() => applyWorkType('대')} className="wse-btn-work-type wse-btn-대" disabled={selectedCells.size === 0}>대</button>
                         <button onClick={() => applyWorkType('')} className="wse-btn-work-type wse-btn-clear" disabled={selectedCells.size === 0}>지우기</button>
                         <button onClick={toggleCellRangeTextMode} className="wse-btn-work-type" disabled={selectedCells.size === 0}
